@@ -50,7 +50,7 @@ python = "3.11"
 dependencies = [
     "pytest==7.4.4",
     "coverage==7.4.2",
-    "octodns==1.7.0",
+    "octodns==1.9.1",
     "octodns-spf==0.0.2",
 ]
 
