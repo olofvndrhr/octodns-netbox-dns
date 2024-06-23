@@ -49,7 +49,7 @@ packages = ["src/octodns_netbox_dns"]
 python = "3.11"
 dependencies = [
     "pytest==7.4.4",
-    "coverage==7.4.2",
+    "coverage==7.5.4",
     "octodns==1.7.0",
     "octodns-spf==0.0.2",
 ]
