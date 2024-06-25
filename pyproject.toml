@@ -68,7 +68,7 @@ validate = ["cd dev && octodns-validate --debug --config-file sync.yml {args}"]
 python = "3.11"
 detached = true
 dependencies = [
-    "mypy==1.8.0",
+    "mypy==1.10.1",
     "ruff==0.2.2",
 ]
 
