@@ -430,3 +430,13 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                             value=record,
                             disable_ptr=self.disable_ptr,
                         )
+
+    def list_zones(self) -> list[str]:
+        """get all zones from netbox
+
+        @return: a list with all active zones
+        """
+        query_params = {"status": "active", **self.nb_view}
+        zones = self.api.plugins.netbox_dns.zones.filter(**query_params)
+
+        return sorted([self._make_absolute(z.name) for z in zones])
