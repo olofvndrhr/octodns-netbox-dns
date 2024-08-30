@@ -14,7 +14,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     """OctoDNS provider for NetboxDNS"""
 
     SUPPORTS_GEO = False
-    SUPPORTS_DYNAMIC = False
+    SUPPORTS_DYNAMIC = True
     SUPPORTS_ROOT_NS = True
     SUPPORTS_MULTIVALUE_PTR = True
     SUPPORTS: set[str] = {  # noqa
