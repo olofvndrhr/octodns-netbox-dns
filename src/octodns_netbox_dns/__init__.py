@@ -165,8 +165,8 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
             case "CAA":
                 value = {
                     "flags": rdata.flags,
-                    "tag": rdata.tag,
-                    "value": rdata.value,
+                    "tag": rdata.tag.decode(),
+                    "value": rdata.value.decode(),
                 }
 
             case "LOC":
