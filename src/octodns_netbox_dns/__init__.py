@@ -58,6 +58,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         replace_duplicates=False,
         make_absolute=False,
         disable_ptr=True,
+        insecure_request=False,
         *args,
         **kwargs,
     ) -> None:
@@ -69,6 +70,10 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         super().__init__(id, *args, **kwargs)
 
         self.api = pynetbox.core.api.Api(url, token)
+        if insecure_request:
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            self.api.http_session.verify = False
         self.nb_view = self._get_nb_view(view)
         self.ttl = ttl
         self.replace_duplicates = replace_duplicates
