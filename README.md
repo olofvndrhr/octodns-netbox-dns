@@ -30,6 +30,9 @@ providers:
         # Disable automatic PTR record creating in the NetboxDNS plugin.
         # [optional, default=true]
         disable_ptr: true
+        # Disable cert. verification for netbox https.
+        # [optional, default=false]
+        insecure_request: false
 ```
 
 ## compatibility
