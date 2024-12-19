@@ -1,4 +1,4 @@
-FROM lscr.io/linuxserver/netbox:4.1.6
+FROM lscr.io/linuxserver/netbox:4.1.9
 
 RUN pip install -U \
     wheel \
