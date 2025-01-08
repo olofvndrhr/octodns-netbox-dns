@@ -17,7 +17,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     SUPPORTS_DYNAMIC = True
     SUPPORTS_ROOT_NS = True
     SUPPORTS_MULTIVALUE_PTR = True
-    SUPPORT = {  # noqa
+    SUPPORTS = {  # noqa
         "A",
         "AAAA",
         "AFSDB",
