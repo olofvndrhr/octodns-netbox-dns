@@ -17,7 +17,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     SUPPORTS_DYNAMIC = True
     SUPPORTS_ROOT_NS = True
     SUPPORTS_MULTIVALUE_PTR = True
-    SUPPORTS: set[str] = {  # noqa
+    SUPPORT = {  # noqa
         "A",
         "AAAA",
         "AFSDB",
@@ -116,7 +116,9 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         if view is None:
             return {"view": "null"}
 
-        nb_view: pynetbox.core.response.Record = self.api.plugins.netbox_dns.views.get(name=view)
+        nb_view: pynetbox.core.response.Record | None = self.api.plugins.netbox_dns.views.get(
+            name=view
+        )
         if nb_view is None:
             msg = f"dns view={view}, has not been found"
             self.log.error(msg)
@@ -137,7 +139,13 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         @return: the netbox dns zone object
         """
         query_params = {"name": name[:-1], **view}
-        nb_zone = self.api.plugins.netbox_dns.zones.get(**query_params)
+        nb_zone: pynetbox.core.response.Record | None = self.api.plugins.netbox_dns.zones.get(
+            **query_params
+        )
+        if nb_zone is None:
+            msg = f"dns zone={name}, has not been found"
+            self.log.error(msg)
+            raise ValueError(msg)
 
         self.log.debug(f"found zone={nb_zone.name}, id={nb_zone.id}")
 
