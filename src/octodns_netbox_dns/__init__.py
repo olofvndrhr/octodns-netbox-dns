@@ -263,7 +263,11 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         )
         for nb_record in nb_records:
             rcd_name: str = "" if nb_record.name == "@" else nb_record.name
-            rcd_value: str = nb_record.zone.name if nb_record.value == "@" else nb_record.value
+            rcd_value: str = (
+                self._make_absolute(nb_record.zone.name, True)
+                if nb_record.value == "@"
+                else nb_record.value
+            )
             rcd_type: str = nb_record.type
             rcd_ttl: int = nb_record.ttl or nb_zone.default_ttl
             if nb_record.type == "NS":
