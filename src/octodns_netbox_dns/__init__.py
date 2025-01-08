@@ -72,6 +72,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self.api = pynetbox.core.api.Api(url, token)
         if insecure_request:
             import urllib3
+
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             self.api.http_session.verify = False
         self.nb_view = self._get_nb_view(view)
