@@ -219,7 +219,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                 value = {
                     "algorithm": rdata.algorithm,
                     "fingerprint_type": rdata.fp_type,
-                    "fingerprint": rdata.fingerprint,
+                    "fingerprint": rdata.fingerprint.hex(),
                 }
 
             case "SPF" | "TXT":
