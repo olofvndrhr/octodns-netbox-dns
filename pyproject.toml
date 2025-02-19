@@ -46,7 +46,7 @@ packages = ["src/octodns_netbox_dns"]
 python = "3.11"
 dependencies = [
     "pytest==8.3.4",
-    "coverage==7.5.3",
+    "coverage==7.6.12",
     "octodns==1.11.0",
     "octodns-spf==0.0.2",
 ]
@@ -69,7 +69,7 @@ validate = ["cd dev && octodns-validate --debug --config-file sync.yml {args}"]
 [tool.hatch.envs.lint]
 python = "3.11"
 detached = true
-dependencies = ["mypy==1.10.0", "ruff==0.9.6"]
+dependencies = ["mypy==1.15.0", "ruff==0.9.6"]
 
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --non-interactive --install-types {args:src/octodns_netbox_dns}"
