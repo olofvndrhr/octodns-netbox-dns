@@ -40,3 +40,9 @@ zones:
       - config
     targets:
       - netbox
+
+  1.168.192.in-addr.arpa.:
+    sources:
+      - config
+    targets:
+      - netbox
