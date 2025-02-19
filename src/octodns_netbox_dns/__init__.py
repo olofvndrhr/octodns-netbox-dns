@@ -360,7 +360,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         @return: false if the change should be discarded, true if it should be kept.
         """
-        if change.record._type in ["SOA", "PTR", "NS"]:
+        if change.record._type in ["SOA", "NS"]:
             self.log.debug(rf"record not supported as provider, ignoring: {change.record}")
             return False
 
