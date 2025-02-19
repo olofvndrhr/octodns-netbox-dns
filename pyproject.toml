@@ -58,6 +58,7 @@ cov-report = ["- coverage combine", "coverage report", "coverage xml"]
 cov = ["test-cov", "cov-report"]
 
 sync = ["cd dev && octodns-sync --debug --config-file sync.yml --force {args}"]
+sync2 = ["cd dev && octodns-sync --debug --config-file sync2.yml --force {args}"]
 dump = [
     "cd dev && octodns-dump --debug --config-file sync.yml --output-dir output {args} '*' netbox",
 ]
@@ -65,6 +66,7 @@ dump2 = [
     "cd dev && octodns-dump --debug --config-file sync2.yml --output-dir output {args} '*' netbox",
 ]
 validate = ["cd dev && octodns-validate --debug --config-file sync.yml {args}"]
+validate2 = ["cd dev && octodns-validate --debug --config-file sync2.yml {args}"]
 
 [tool.hatch.envs.lint]
 python = "3.11"

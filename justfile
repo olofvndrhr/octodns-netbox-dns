@@ -3,17 +3,17 @@
 default: show_receipts
 
 set shell := ["bash", "-uc"]
-set dotenv-load
+set dotenv-load := true
 
 show_receipts:
     just --list
 
 show_system_info:
     @echo "=================================="
-    @echo "os : {{os()}}"
-    @echo "arch: {{arch()}}"
-    @echo "justfile dir: {{justfile_directory()}}"
-    @echo "invocation dir: {{invocation_directory()}}"
+    @echo "os : {{ os() }}"
+    @echo "arch: {{ arch() }}"
+    @echo "justfile dir: {{ justfile_directory() }}"
+    @echo "invocation dir: {{ invocation_directory() }}"
     @echo "running dir: `pwd -P`"
     @echo "=================================="
 
@@ -60,6 +60,7 @@ test:
     hatch run default:test
 
 up:
+    docker compose -f dev/compose.yml build
     docker compose -f dev/compose.yml up
 
 down:
@@ -73,6 +74,9 @@ clean:
 sync *args:
     hatch -v run default:sync {{ args }}
 
+sync2 *args:
+    hatch -v run default:sync {{ args }}
+
 dump *args:
     hatch -v run default:dump {{ args }}
 
@@ -80,4 +84,7 @@ dump2 *args:
     hatch -v run default:dump2 {{ args }}
 
 validate *args:
+    hatch -v run default:validate {{ args }}
+
+validate2 *args:
     hatch -v run default:validate {{ args }}

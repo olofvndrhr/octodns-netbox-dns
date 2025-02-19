@@ -1,0 +1,19 @@
+---
+? ''
+: ttl: 43200
+  type: NS
+  values:
+  - ns1.example.com.
+  - ns2.example.com.
+'1':
+  type: PTR
+  value: ns1.example.com.
+'2':
+  type: PTR
+  value: ns2.example.com.
+'11':
+  type: PTR
+  value: record11.example.com.
+'12':
+  type: PTR
+  value: record12.example.com.

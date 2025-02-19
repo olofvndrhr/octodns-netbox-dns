@@ -3,22 +3,7 @@ manager:
   plan_outputs:
     html:
       class: octodns.provider.plan.PlanMarkdown
-processors:
-  spf:
-    class: octodns_spf.SpfDnsLookupProcessor
-  no-root-ns:
-    class: octodns.processor.filter.IgnoreRootNsFilter
-  min-max-ttl:
-    class: octodns.processor.restrict.TtlRestrictionFilter
-    allowed_ttls:
-      - 60
-      - 300
-      - 600
-      - 900
-      - 1800
-      - 3600
-      - 7200
-      - 10800
+
 providers:
   config:
     class: octodns.provider.yaml.YamlProvider
@@ -26,6 +11,7 @@ providers:
     default_ttl: 3600
     enforce_order: true
     populate_should_replace: false
+
   netbox:
     class: octodns_netbox_dns.NetBoxDNSProvider
     url: http://localhost:8000
@@ -33,11 +19,12 @@ providers:
     view: false
     replace_duplicates: false
     make_absolute: true
+    disable_ptr: true
+    insecure_request: false
+
 zones:
   "*":
     sources:
       - config
-    processors:
-      - spf
     targets:
       - netbox

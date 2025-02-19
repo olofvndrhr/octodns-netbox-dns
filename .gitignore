@@ -18,6 +18,8 @@ dev/redis-data
 dev/netbox-data
 dev/output
 
+.stignore
+
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/

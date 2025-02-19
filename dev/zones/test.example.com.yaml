@@ -1,6 +1,6 @@
 ---
 ? ''
-: ttl: 172800
+: ttl: 43200
   type: NS
   values:
   - ns1.example.com.
