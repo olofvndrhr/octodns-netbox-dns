@@ -23,7 +23,7 @@ DEFAULT_CONFIG = {
 
 def test1():
     nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
-    for n in ["SOA", "NS", "PTR"]:
+    for n in ["SOA", "NS"]:
         change = Change(n)
         include_rcd = nbdns._include_change(change)
 
@@ -32,7 +32,7 @@ def test1():
 
 def test2():
     nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
-    for n in ["A", "AAA", "CNAME", "TXT", "MX"]:
+    for n in ["A", "AAA", "CNAME", "TXT", "MX", "PTR"]:
         change = Change(n)
         include_rcd = nbdns._include_change(change)
 
