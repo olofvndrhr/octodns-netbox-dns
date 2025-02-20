@@ -1,6 +1,6 @@
 # netbox-plugin-dns provider for octodns
 
-> works with https://github.com/peteeckel/netbox-plugin-dns
+> works with <https://github.com/peteeckel/netbox-plugin-dns>
 
 ## config
 
@@ -30,7 +30,7 @@ providers:
         # Disable automatic PTR record creating in the NetboxDNS plugin.
         # [optional, default=true]
         disable_ptr: true
-        # Disable cert. verification for netbox https.
+        # Disable certificate verification for unsecure https.
         # [optional, default=false]
         insecure_request: false
 ```
@@ -39,10 +39,16 @@ providers:
 
 > actively tested on the newest `netbox-plugin-dns` and `netbox` versions
 
-| provider    | [netbox-plugin-dns](https://github.com/peteeckel/netbox-plugin-dns) | [netbox](https://github.com/netbox-community/netbox) |
-| ----------- | ------------------------------------------------------------------- | ---------------------------------------------------- |
-| `>= v0.3.3` | `>=0.21.0`                                                          | `>=3.6.0`                                            |
-| `>= v0.3.6` | `>=1.0.0`                                                           | `>=4.0.0`                                            |
+| provider     | [netbox-plugin-dns](https://github.com/peteeckel/netbox-plugin-dns) | [netbox](https://github.com/netbox-community/netbox) |
+| ------------ | ------------------------------------------------------------------- | ---------------------------------------------------- |
+| `>= v0.3.3`  | `>=0.21.0`                                                          | `>=3.6.0`                                            |
+| `>= v0.3.6`  | `>=1.0.0`                                                           | `>=4.0.0`                                            |
+| `>= v0.3.11` | `>=1.2.3`                                                           | `>=4.2.0`                                            |
+
+## limitations
+
+the records can only be synced to netbox-dns if the zone is already existing.
+the provider _CAN NOT_ create zones (as of now).
 
 ## install
 
