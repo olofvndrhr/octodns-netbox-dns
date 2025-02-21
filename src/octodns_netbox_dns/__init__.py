@@ -340,7 +340,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self.log.debug(f"{unescaped_changeset=}")
         return unescaped_changeset
 
-    def _include_change(self, change: octodns.record.change.Change) -> bool:
+    def _include_change(self, _change: octodns.record.change.Change) -> bool:
         """filter out record types which the provider can't create in netbox
 
         @param change: the planned change
