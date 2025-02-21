@@ -332,7 +332,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
             case _:
                 raise ValueError
 
-        if change._type not in ["SPF", "TXT", "NS"]:
+        if change._type not in ["SPF", "TXT"]:
             self.log.debug(f"{changeset=}")
             return changeset
 
