@@ -20,32 +20,22 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     SUPPORTS = {  # noqa
         "A",
         "AAAA",
-        "AFSDB",
-        "APL",
+        # "ALIAS",
         "CAA",
-        "CDNSKEY",
-        "CERT",
         "CNAME",
-        "DCHID",
         "DNAME",
-        "DNSKEY",
-        "DS",
-        "HIP",
-        "IPSECKEY",
+        # "DS",
         "LOC",
         "MX",
-        "NAPTR",
+        # "NAPTR",
         "NS",
-        "NSEC",
         "PTR",
-        "RP",
-        "RRSIG",
-        "SOA",
         "SPF",
         "SRV",
         "SSHFP",
-        "TLSA",
+        # "TLSA",
         "TXT",
+        # "URLFWD",
     }
 
     def __init__(
@@ -170,11 +160,8 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
             case "A" | "AAAA":
                 value = rdata.address
 
-            case "CNAME":
+            case "CNAME" | "DNAME" | "NS" | "PTR":
                 value = self._make_absolute(rdata.target.to_text())
-
-            case "DNAME" | "NS" | "PTR":
-                value = rdata.target.to_text()
 
             case "CAA":
                 value = {
@@ -185,18 +172,18 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
             case "LOC":
                 value = {
-                    "lat_direction": "N" if rdata.latitude[4] >= 0 else "S",
                     "lat_degrees": rdata.latitude[0],
                     "lat_minutes": rdata.latitude[1],
                     "lat_seconds": rdata.latitude[2] + rdata.latitude[3] / 1000,
-                    "long_direction": "W" if rdata.latitude[4] >= 0 else "E",
+                    "lat_direction": "N" if rdata.latitude[4] >= 0 else "S",
                     "long_degrees": rdata.longitude[0],
                     "long_minutes": rdata.longitude[1],
                     "long_seconds": rdata.longitude[2] + rdata.longitude[3] / 1000,
+                    "long_direction": "W" if rdata.latitude[4] >= 0 else "E",
                     "altitude": rdata.altitude / 100,
                     "size": rdata.size / 100,
                     "precision_horz": rdata.horizontal_precision / 100,
-                    "precision_vert": rdata.veritical_precision / 100,
+                    "precision_vert": rdata.vertical_precision / 100,
                 }
 
             case "MX":
@@ -233,12 +220,12 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                     "target": self._make_absolute(rdata.target.to_text()),
                 }
 
-            case "SOA":
-                self.log.debug("SOA record type not implemented")
+            case "ALIAS" | "DS" | "NAPTR" | "TLSA" | "URLFWD":
+                self.log.debug(f"'{rcd_type}' record type not implemented as provider")
                 raise NotImplementedError
 
             case _:
-                self.log.error("invalid record type")
+                self.log.error(f"invalid record type: '{rcd_type}'")
                 raise ValueError
 
         self.log.debug(rf"formatted record value={value}")
@@ -345,7 +332,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
             case _:
                 raise ValueError
 
-        if change._type not in ["TXT", "SPF"]:
+        if change._type not in ["SPF", "TXT", "NS"]:
             self.log.debug(f"{changeset=}")
             return changeset
 
@@ -360,11 +347,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         @return: false if the change should be discarded, true if it should be kept.
         """
-        if change.record._type in ["SOA", "NS"]:
-            self.log.debug(rf"record not supported as provider, ignoring: {change.record}")
-            return False
-
-        return True
+        return True  # currently unused
 
     def _apply(self, plan: octodns.provider.plan.Plan) -> None:
         """apply the changes to the NetBox DNS zone.

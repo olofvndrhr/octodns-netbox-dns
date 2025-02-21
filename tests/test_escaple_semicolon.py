@@ -9,10 +9,10 @@ DEFAULT_CONFIG = {
     "replace_duplicates": False,
     "make_absolute": True,
 }
+nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
 
 
 def test_escape1():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"v=TLSRPTv1; rua=mailto:tlsrpt@example.com"
     value = nbdns._escape_semicolon(rcd_value)
 
@@ -20,7 +20,6 @@ def test_escape1():
 
 
 def test_escape2():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"v=TLSRPTv1\; rua=mailto:tlsrpt@example.com"
     value = nbdns._escape_semicolon(rcd_value)
 
@@ -28,7 +27,6 @@ def test_escape2():
 
 
 def test_escape3():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"t=y\;o=~\;"
     value = nbdns._escape_semicolon(rcd_value)
 
@@ -36,7 +34,6 @@ def test_escape3():
 
 
 def test_escape4():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"t=y;o=~;"
     value = nbdns._escape_semicolon(rcd_value)
 
@@ -44,7 +41,6 @@ def test_escape4():
 
 
 def test_unescape1():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"v=TLSRPTv1\; rua=mailto:tlsrpt@example.com"
     value = nbdns._unescape_semicolon(rcd_value)
 
@@ -52,7 +48,6 @@ def test_unescape1():
 
 
 def test_unescape2():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"v=TLSRPTv1\\; rua=mailto:tlsrpt@example.com"
     value = nbdns._unescape_semicolon(rcd_value)
 
@@ -60,7 +55,6 @@ def test_unescape2():
 
 
 def test_unescape3():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"t=y\\;o=~\;"
     value = nbdns._unescape_semicolon(rcd_value)
 
@@ -68,7 +62,6 @@ def test_unescape3():
 
 
 def test_unescape4():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd_value = r"t=y;o=~;"
     value = nbdns._unescape_semicolon(rcd_value)
 

@@ -10,9 +10,10 @@ DEFAULT_CONFIG = {
     "make_absolute": True,
 }
 
+nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
+
 
 def test_absolute():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd = "example.com"
     absolute = nbdns._make_absolute(rcd)
 
@@ -20,7 +21,6 @@ def test_absolute():
 
 
 def test_noop():
-    nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
     rcd = "example.com."
     absolute = nbdns._make_absolute(rcd)
 
