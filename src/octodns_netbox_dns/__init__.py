@@ -30,7 +30,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         # "NAPTR",
         "NS",
         "PTR",
-        "SPF",
+        # "SPF",
         "SRV",
         "SSHFP",
         # "TLSA",
@@ -209,7 +209,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                     "fingerprint": rdata.fingerprint.hex(),
                 }
 
-            case "SPF" | "TXT":
+            case "TXT":
                 value = self._escape_semicolon(rcd_value)
 
             case "SRV":
@@ -220,13 +220,13 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                     "target": self._make_absolute(rdata.target.to_text()),
                 }
 
-            case "ALIAS" | "DS" | "NAPTR" | "TLSA" | "URLFWD":
-                self.log.debug(f"'{rcd_type}' record type not implemented as provider")
+            case "ALIAS" | "DS" | "NAPTR" | "SPF" | "TLSA" | "URLFWD":
+                self.log.debug(f"'{rcd_type}' record type not implemented. ignoring record")
                 raise NotImplementedError
 
             case _:
-                self.log.error(f"invalid record type: '{rcd_type}'")
-                raise ValueError
+                self.log.error(f"ignoring invalid record with type: '{rcd_type}'")
+                raise NotImplementedError
 
         self.log.debug(rf"formatted record value={value}")
 
@@ -324,21 +324,23 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         @return: the formatted/escaped changeset
         """
-        match change:
-            case octodns.record.ValueMixin():
-                changeset = {repr(change.value)[1:-1]}
-            case octodns.record.ValuesMixin():
-                changeset = {repr(v)[1:-1] for v in change.values}
+        match change._type:
+            case "CAA":
+                changeset = {repr(v) for v in change.values}
+            case "TXT":
+                changeset = {self._unescape_semicolon(repr(v)[1:-1]) for v in change.values}
             case _:
-                raise ValueError
+                match change:
+                    case octodns.record.ValueMixin():
+                        changeset = {repr(change.value)[1:-1]}
+                    case octodns.record.ValuesMixin():
+                        changeset = {repr(v)[1:-1] for v in change.values}
+                    case _:
+                        raise ValueError
 
-        if change._type not in ["SPF", "TXT"]:
-            self.log.debug(f"{changeset=}")
-            return changeset
+        self.log.debug(f"{changeset=}")
 
-        unescaped_changeset = {self._unescape_semicolon(n) for n in changeset}
-        self.log.debug(f"{unescaped_changeset=}")
-        return unescaped_changeset
+        return changeset
 
     def _include_change(self, _change: octodns.record.change.Change) -> bool:
         """filter out record types which the provider can't create in netbox
