@@ -5,15 +5,12 @@
   values:
   - ns1.example.com.
   - ns2.example.com.
-_smtp._tls:
-  type: TXT
-  value: v=TLSRPTv1\; rua=mailto:tlsrpt@example.com
-record1:
-  type: CNAME
-  value: record11.test.example.com.
-record11:
+a1:
   type: A
   value: 192.168.1.11
-record12:
+a2:
   type: A
   value: 192.168.1.12
+cname1:
+  type: CNAME
+  value: a1.test.example.com.

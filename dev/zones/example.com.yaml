@@ -1,37 +1,91 @@
 ---
 ? ''
-: - ttl: 43200
-    type: NS
-    values:
-    - ns1.example.com.
-    - ns2.example.com.
-  - type: TXT
-    value: v=spf1 include:example.com -all
-_ts3._udp:
+: ttl: 43200
+  type: NS
+  values:
+  - ns1.example.com.
+  - ns2.example.com.
+_srv1._tcp:
   type: SRV
   value:
     port: 9987
     priority: 0
     target: example.com.
     weight: 5
+a1:
+  type: A
+  value: 192.168.1.11
+a2:
+  type: A
+  value: 192.168.1.12
+aaaa1:
+  type: AAAA
+  value: 2001:db8::8a2e:370:7334
+aaaa2:
+  type: AAAA
+  value: 2001:db8::8a2e:370:7335
 abc:
   type: CNAME
   value: def.example.com.
-ns1:
-  type: A
-  value: 192.168.1.1
-ns2:
-  type: A
-  value: 192.168.1.2
+caa1:
+  type: CAA
+  value:
+    flags: 0
+    tag: issue
+    value: letsencrypt.org
+cname1:
+  type: CNAME
+  value: a1.example.com.
+cname2:
+  type: CNAME
+  value: a1.test.example.com.
+cname3:
+  type: CNAME
+  value: a1.view.example.com.
+dname1:
+  type: DNAME
+  value: example.net.
+loc1:
+  type: LOC
+  value:
+    altitude: 1.0
+    lat_degrees: 0
+    lat_direction: N
+    lat_minutes: 0
+    lat_seconds: 0.0
+    long_degrees: 0
+    long_direction: W
+    long_minutes: 0
+    long_seconds: 0.0
+    precision_horz: 10000.0
+    precision_vert: 10.0
+    size: 1.0
+mx1:
+  type: MX
+  value:
+    exchange: mx.example.com.
+    preference: 10
 record1:
   type: CNAME
   value: record11.example.com.
-record11:
-  type: A
-  value: 192.168.1.11
-record12:
-  type: A
-  value: 192.168.1.12
-x._domainkey:
+sshfp1:
+  type: SSHFP
+  value:
+    algorithm: 4
+    fingerprint: 123456789abcdef67890123456789abcdef67890123456789abcdef123456789
+    fingerprint_type: 2
+txt1:
   type: TXT
-  value: v=DKIM1\; k=rsa\; p=MIIBIjANBgkasdasdasIIBCgKCAQEAq7OOAhfjaOKMSiJR8xkG+sadasdasd+OiWdZEZ7T4blBQxuWTNGoaG1CKOFeJSf72JAlqxF++z2CB4ypdUOoRNn96KlcpI2LBmoW1c7ZzFzqPvgCs+EzaOnt5S2FH2njHb15+atdE8cuZ7+MGmHf5HSD/asdasdasdasdasdadadasd+2Chr68t4wc+qPrUIGM3JnOhzKyiK6FfQXVwoDTxwmKTE2EzhPAQjlCHrRLaynDqiGjXjZcqoF9UEB5cBGw+asdasdasdasdas/dwIDAQAB
+  value: v=TLSRPTv1\; rua=mailto:tlsrpt@example.com
+txt2:
+  type: TXT
+  value: v=TLSRPTv1\\; rua=mailto:tlsrpt@example.com
+txt3:
+  type: TXT
+  value: v=DKIM1\; k=rsa\; p=/0f+sikE+k9ZKbn1BJu0/soWht/+Zd/nc/+Gy//mQ1B5sCKYKgAmYTSWkxRjFzkc6KAQhi+/IzaFogEV050wcscdC8Rc8lAQzDUFrMs2ZZK1vFtkwIDAQAB
+txt4:
+  type: TXT
+  value: t=y\\;o=~\\;
+txt5:
+  type: TXT
+  value: t=y\;o=~\;

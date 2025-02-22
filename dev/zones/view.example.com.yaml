@@ -5,12 +5,12 @@
   values:
   - ns1.example.com.
   - ns2.example.com.
-record1:
-  type: CNAME
-  value: record11.view.example.com.
-record11:
+a1:
   type: A
   value: 192.168.1.11
-record12:
+a2:
   type: A
   value: 192.168.1.13
+cname1:
+  type: CNAME
+  value: a1.view.example.com.
