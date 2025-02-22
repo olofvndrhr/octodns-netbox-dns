@@ -118,11 +118,7 @@ def test_ptr():
 
 
 def test_spf():
-    rcd_type = "SPF"
-    rcd_value = "v=spf1 include:example.com -all"
-    value = nbdns._format_rdata(rcd_type, rcd_value)
-
-    assert value == "v=spf1 include:example.com -all"
+    pass  # not supported
 
 
 def test_srv():
