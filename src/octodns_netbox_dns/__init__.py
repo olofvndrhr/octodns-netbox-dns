@@ -224,6 +224,10 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                 self.log.debug(f"'{rcd_type}' record type not implemented. ignoring record")
                 raise NotImplementedError
 
+            # Silently ignore SOA records as required by NetBox DNS, but not supported by octoDNS.
+            case "SOA":
+                raise NotImplementedError
+
             case _:
                 self.log.error(f"ignoring invalid record with type: '{rcd_type}'")
                 raise NotImplementedError
