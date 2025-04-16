@@ -220,12 +220,8 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                     "target": self._make_absolute(rdata.target.to_text()),
                 }
 
-            case "ALIAS" | "DS" | "NAPTR" | "SPF" | "TLSA" | "URLFWD":
+            case "ALIAS" | "DS" | "NAPTR" | "SPF" | "TLSA" | "URLFWD" | "SOA":
                 self.log.debug(f"'{rcd_type}' record type not implemented. ignoring record")
-                raise NotImplementedError
-
-            # Silently ignore SOA records as required by NetBox DNS, but not supported by octoDNS.
-            case "SOA":
                 raise NotImplementedError
 
             case _:
