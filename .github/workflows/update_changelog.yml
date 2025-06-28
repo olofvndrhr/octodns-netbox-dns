@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: main
+          ref: master
 
       - name: install auto-changelog
         run: npm install auto-changelog
@@ -29,5 +29,3 @@ jobs:
         with:
           add: CHANGELOG.md
           message: "[bot] update changelog"
-          author_name: actions-bot
-          author_email: actions@bots.44net.ch

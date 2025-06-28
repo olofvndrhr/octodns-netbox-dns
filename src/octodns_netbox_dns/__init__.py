@@ -14,9 +14,11 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     """OctoDNS provider for NetboxDNS"""
 
     SUPPORTS_GEO = False
-    SUPPORTS_DYNAMIC = True
+    SUPPORTS_DYNAMIC = True  # pyright: ignore
     SUPPORTS_ROOT_NS = True
     SUPPORTS_MULTIVALUE_PTR = True
+
+    # record types which are commented out, are not supported by the Netbox DNS plugin
     SUPPORTS = {  # noqa
         "A",
         "AAAA",
@@ -43,33 +45,38 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         id: int,  # noqa
         url: str,
         token: str,
-        view: str | None | Literal[False] = False,
-        ttl=3600,
+        view: str | None | Literal[False],
         replace_duplicates=False,
         make_absolute=False,
         disable_ptr=True,
         insecure_request=False,
+        zone_status_filter="active",
+        record_status_filter="active",
+        max_page_size=0,
         *args,
         **kwargs,
     ) -> None:
         """initialize the NetBoxDNSProvider"""
         self.log = logging.getLogger(f"NetBoxDNSProvider[{id}]")
-        self.log.debug(
-            f"__init__: {id=}, {url=}, {view=}, {replace_duplicates=}, {make_absolute=}, {disable_ptr=}, {args=}, {kwargs=}"
-        )
+
         super().__init__(id, *args, **kwargs)
 
         self.api = pynetbox.core.api.Api(url, token)
         if insecure_request:
-            import urllib3
+            import urllib3  # noqa
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             self.api.http_session.verify = False
         self.nb_view = self._get_nb_view(view)
-        self.ttl = ttl
         self.replace_duplicates = replace_duplicates
         self.make_absolute = make_absolute
         self.disable_ptr = disable_ptr
+        self.zone_status_filter = {"status": zone_status_filter} if zone_status_filter else {}
+        self.record_status_filter = {"status": record_status_filter} if record_status_filter else {}
+        self.max_page_size = max_page_size
+
+        _init_info = {k: v for k, v in locals().items() if k not in ["self", "__class__", "token"]}
+        self.log.debug(f"__init__: {_init_info}")
 
     def _make_absolute(self, value: str, force: bool = False) -> str:
         """return dns name with trailing dot to make it absolute
@@ -100,17 +107,16 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self.log.debug(rf"in='{value}', unescaped='{fixed}'")
         return fixed
 
-    def _get_nb_view(self, view: str | None | Literal[False]) -> dict[str, int | str]:
-        """get the correct netbox view when requested
+    def _get_nb_view(self, view: str | None | Literal[False]) -> dict[str, int]:
+        """get the correct netbox view.
+        views are required since netbox-plugin-dns>=1.0.0
 
-        @param view: `False` for no view, `None` for zones without a view, else the view name
+        @param view: `None` for no view filter, else the view name
 
         @return: the netbox view id in the netbox query format
         """
-        if view is False:
+        if not view:
             return {}
-        if view is None:
-            return {"view": "null"}
 
         nb_view: pynetbox.core.response.Record | None = self.api.plugins.netbox_dns.views.get(
             name=view
@@ -124,7 +130,10 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         return {"view_id": nb_view.id}
 
-    def _get_nb_zone(self, name: str, view: dict[str, str | int]) -> pynetbox.core.response.Record:
+    def _get_nb_zone(
+        self,
+        zone_name: str,
+    ) -> pynetbox.core.response.Record:
         """given a zone name and a view name, look it up in NetBox.
 
         @param name: name of the dns zone
@@ -134,14 +143,13 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         @return: the netbox dns zone object
         """
-        query_params = {"name": name[:-1], **view}
         nb_zone: pynetbox.core.response.Record | None = self.api.plugins.netbox_dns.zones.get(
-            **query_params
+            name=zone_name[:-1], **self.nb_view
         )
+
         if nb_zone is None:
-            msg = f"dns zone={name}, has not been found"
-            self.log.error(msg)
-            raise ValueError(msg)
+            self.log.error(f"zone={zone_name}, not found in view={self.nb_view}")
+            raise LookupError
 
         self.log.debug(f"found zone={nb_zone.name}, id={nb_zone.id}")
 
@@ -241,13 +249,11 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         """
         records: dict[tuple[str, str], dict[str, Any]] = {}
 
-        nb_zone = self._get_nb_zone(zone.name, view=self.nb_view)
-        if not nb_zone:
-            self.log.error(f"zone={zone.name}, not found in view={self.nb_view}")
-            raise LookupError
-
+        nb_zone = self._get_nb_zone(zone.name)
         nb_records: pynetbox.core.response.RecordSet = self.api.plugins.netbox_dns.records.filter(
-            zone_id=nb_zone.id, status="active"
+            limit=self.max_page_size,
+            zone_id=nb_zone.id,
+            **self.record_status_filter,
         )
         for nb_record in nb_records:
             rcd_name: str = "" if nb_record.name == "@" else nb_record.name
@@ -342,14 +348,14 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         return changeset
 
-    def _include_change(self, _change: octodns.record.change.Change) -> bool:
-        """filter out record types which the provider can't create in netbox
+    # def _include_change(self, change: octodns.record.change.Change) -> bool:
+    #     """filter out record types which the provider can't create in netbox
 
-        @param change: the planned change
+    #     @param change: the planned change
 
-        @return: false if the change should be discarded, true if it should be kept.
-        """
-        return True  # currently unused
+    #     @return: false if the change should be discarded, true if it should be kept.
+    #     """
+    #     return True  # currently unused
 
     def _apply(self, plan: octodns.provider.plan.Plan) -> None:
         """apply the changes to the NetBox DNS zone.
@@ -360,7 +366,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         """
         self.log.debug(f"--> _apply zone={plan.desired.name}, changes={len(plan.changes)}")
 
-        nb_zone = self._get_nb_zone(plan.desired.name, view=self.nb_view)
+        nb_zone = self._get_nb_zone(plan.desired.name)
 
         for change in plan.changes:
             match change:
@@ -382,6 +388,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                 case octodns.record.Delete():
                     nb_records: pynetbox.core.response.RecordSet = (
                         self.api.plugins.netbox_dns.records.filter(
+                            limit=self.max_page_size,
                             zone_id=nb_zone.id,
                             name=change.existing.name,
                             type=change.existing._type,
@@ -402,6 +409,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                     rcd_name = "@" if change.existing.name == "" else change.existing.name
 
                     nb_records = self.api.plugins.netbox_dns.records.filter(
+                        limit=self.max_page_size,
                         zone_id=nb_zone.id,
                         name=rcd_name,
                         type=change.existing._type,
@@ -443,8 +451,9 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         @return: a list with all active zones
         """
-        query_params = {"status": "active", **self.nb_view}
-        zones = self.api.plugins.netbox_dns.zones.filter(**query_params)
+        zones = self.api.plugins.netbox_dns.zones.filter(
+            limit=self.max_page_size, **self.nb_view, **self.zone_status_filter
+        )
         absolute_zones = [self._make_absolute(z.name, True) for z in zones]
 
         return sorted(absolute_zones)

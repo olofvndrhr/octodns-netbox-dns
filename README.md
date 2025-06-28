@@ -1,6 +1,8 @@
 # netbox-plugin-dns provider for octodns
 
-> works with <https://github.com/peteeckel/netbox-plugin-dns>
+[octodns](https://github.com/octodns/octodns) provider for [netbox-plugin-dns](https://github.com/peteeckel/netbox-plugin-dns)
+
+> syncs dns records from and to netbox via [octodns](https://github.com/octodns/octodns)
 
 ## config
 
@@ -33,6 +35,16 @@ providers:
         # Disable certificate verification for unsecure https.
         # [optional, default=false]
         insecure_request: false
+        # nly include zones with this status when dynamic zones are used, e.g. "*".
+        # [optional, default=active]
+        zone_status_filter: active
+        # Only include records with this status when records are listed from a zone.
+        # [optional, default=active]
+        record_status_filter: active
+        # Maximal page size of queries.
+        # A value of 0 means: show every item. Can cause errors with the NetBox setting: MAX_PAGE_SIZE
+        # [optional, default=0]
+        max_page_size: 0
 ```
 
 ## compatibility
