@@ -71,7 +71,7 @@ validate2 = ["cd dev && octodns-validate --debug --config-file sync2.yml {args}"
 [tool.hatch.envs.lint]
 python = "3.11"
 detached = true
-dependencies = ["mypy~=1.15.0", "ruff~=0.11.10"]
+dependencies = ["mypy~=1.15.0", "ruff~=0.12.1"]
 
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --non-interactive --install-types {args:src/octodns_netbox_dns}"
