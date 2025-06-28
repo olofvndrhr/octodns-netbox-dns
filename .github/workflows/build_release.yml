@@ -44,6 +44,10 @@ jobs:
         id: release-notes
         uses: olofvndrhr/releasenote-gen@v1
 
+      - name: publish package
+        if: github.event_name != 'pull_request'
+        run: hatch publish --yes --no-prompt
+
       - name: create github release
         uses: ncipollo/release-action@v1
         if: github.event_name != 'pull_request'
