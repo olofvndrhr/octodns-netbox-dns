@@ -10,17 +10,16 @@
 providers:
     config:
         class: octodns_netbox_dns.NetBoxDNSProvider
-        # Netbox url
-        # [mandatory, default=null]
+        # Netbox instance url
+        # [mandatory]
         url: "https://some-url"
         # Netbox API token
-        # [mandatory, default=null]
+        # [mandatory]
         token: env/NETBOX_API_KEY
-        # View of the zone. Can be either a string -> the view name
-        # "null" -> to only query zones without a view
-        # false -> to ignore views
-        # [optional, default=false]
-        view: false
+        # Filter by zone view. Can either be the name of the view, or "null".
+        # "null" -> do not filter by view.
+        # [optional, default=null]
+        view: null
         # When records sourced from multiple providers, allows provider
         # to replace entries coming from the previous one.
         # Implementation matches YamlProvider's 'populate_should_replace'
@@ -35,7 +34,7 @@ providers:
         # Disable certificate verification for unsecure https.
         # [optional, default=false]
         insecure_request: false
-        # nly include zones with this status when dynamic zones are used, e.g. "*".
+        # Only include zones with this status when dynamic zones are used, e.g. "*".
         # [optional, default=active]
         zone_status_filter: active
         # Only include records with this status when records are listed from a zone.

@@ -45,7 +45,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         id: int,  # noqa
         url: str,
         token: str,
-        view: str | None | Literal[False],
+        view: str | None | Literal[False] = None,
         replace_duplicates=False,
         make_absolute=False,
         disable_ptr=True,
