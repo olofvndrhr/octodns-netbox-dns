@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.24", "hatch-regex-commit>=0.0.3"]
+requires = ["hatchling==1.27.0", "hatch-regex-commit==0.0.3"]
 build-backend = "hatchling.build"
 
 [project]
@@ -45,8 +45,8 @@ packages = ["src/octodns_netbox_dns"]
 [tool.hatch.envs.default]
 python = "3.11"
 dependencies = [
-    "pytest~=8.3.5",
-    "coverage~=7.9.1",
+    "pytest==8.4.1",
+    "coverage==7.9.2",
     "octodns==1.12.0",
     "octodns-spf==1.0.0",
 ]
@@ -71,7 +71,7 @@ validate2 = ["cd dev && octodns-validate --debug --config-file sync2.yml {args}"
 [tool.hatch.envs.lint]
 python = "3.11"
 detached = true
-dependencies = ["mypy~=1.15.0", "ruff~=0.12.1"]
+dependencies = ["mypy==1.17.0", "ruff==0.12.3"]
 
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --non-interactive --install-types {args:src/octodns_netbox_dns}"
