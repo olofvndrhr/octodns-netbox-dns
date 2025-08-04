@@ -1,5 +1,8 @@
 [build-system]
-requires = ["hatchling==1.27.0", "hatch-regex-commit==0.0.3"]
+requires = [
+    "hatchling==1.27.0",
+    "hatch-regex-commit==0.0.3",
+]
 build-backend = "hatchling.build"
 
 [project]
@@ -10,26 +13,27 @@ license = "MIT"
 requires-python = ">=3.11"
 dynamic = ["version"]
 authors = [
-    { name = "Jeffrey C. Ollie", email = "" },
+    { name = "Jeffrey C. Ollie", email = "jeff@ocjtech.us" },
     { name = "Ivan Schaller", email = "ivan@schaller.sh" },
 ]
 classifiers = [
-    "License :: OSI Approved :: MIT License",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.11",
 ]
-dependencies = ["pynetbox~=7.5.0", "dnspython~=2.7.0"]
+keywords = []
+dependencies = [
+    "pynetbox~=7.5.0",
+    "dnspython~=2.7.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/olofvndrhr/octodns-netbox-dns"
-History = "https://github.com/olofvndrhr/octodns-netbox-dns/commits/master"
-Tracker = "https://github.com/olofvndrhr/octodns-netbox-dns/issues"
-Source = "https://github.com/olofvndrhr/octodns-netbox-dns"
+History  = "https://github.com/olofvndrhr/octodns-netbox-dns/commits/master"
+Tracker  = "https://github.com/olofvndrhr/octodns-netbox-dns/issues"
+Source   = "https://github.com/olofvndrhr/octodns-netbox-dns"
 
 [tool.hatch.version]
-source = "regex_commit"
-path = "src/octodns_netbox_dns/__about__.py"
+source   = "regex_commit"
+path     = "src/octodns_netbox_dns/__about__.py"
 tag_sign = false
 
 [tool.hatch.build.targets.sdist]
@@ -42,133 +46,131 @@ packages = ["src/octodns_netbox_dns"]
 ### envs
 ###
 
-[tool.hatch.envs.default]
-python = "3.11"
+[tool.hatch.envs.test]
 dependencies = [
     "pytest==8.4.1",
-    "coverage==7.9.2",
+    "coverage==7.10.1",
     "octodns==1.12.0",
     "octodns-spf==1.0.0",
 ]
 
-[tool.hatch.envs.default.scripts]
+[[tool.hatch.envs.test.matrix]]
+python = ["3.11"]
+
+[tool.hatch.envs.test.scripts]
 test = "pytest {args:tests}"
-test-cov = ["coverage erase", "coverage run -m pytest {args:tests}"]
-cov-report = ["- coverage combine", "coverage report", "coverage xml"]
+test-cov = [
+    "coverage erase",
+    "coverage run -m pytest {args:tests}",
+]
+cov-report = [
+    "- coverage combine",
+    "coverage report",
+    "coverage xml",
+]
 cov = ["test-cov", "cov-report"]
 
-sync = ["cd dev && octodns-sync --debug --config-file sync.yml --force {args}"]
-sync2 = ["cd dev && octodns-sync --debug --config-file sync2.yml --force {args}"]
+sync = [
+    "cd dev && octodns-sync --debug --config-file sync.yml --force {args}",
+]
+sync2 = [
+    "cd dev && octodns-sync --debug --config-file sync2.yml --force {args}",
+]
 dump = [
     "cd dev && octodns-dump --debug --config-file sync.yml --output-dir output {args} '*' netbox",
 ]
 dump2 = [
     "cd dev && octodns-dump --debug --config-file sync2.yml --output-dir output {args} '*' netbox",
 ]
-validate = ["cd dev && octodns-validate --debug --config-file sync.yml {args}"]
-validate2 = ["cd dev && octodns-validate --debug --config-file sync2.yml {args}"]
+validate = [
+    "cd dev && octodns-validate --debug --config-file sync.yml {args}",
+]
+validate2 = [
+    "cd dev && octodns-validate --debug --config-file sync2.yml {args}",
+]
 
 [tool.hatch.envs.lint]
 python = "3.11"
 detached = true
-dependencies = ["mypy==1.17.0", "ruff==0.12.3"]
+dependencies = [
+    "mypy==1.17.1",
+    "ruff==0.12.7",
+]
 
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --non-interactive --install-types {args:src/octodns_netbox_dns}"
-style = ["ruff check --diff {args:.}", "ruff format --check --diff {args:.}"]
-fmt = ["ruff check --fix {args:.}", "ruff format {args:.}", "style"]
+typing = "mypy --non-interactive --install-types {args:src/octodns_netbox_dns tests}"
+style = [
+    "ruff check --no-fix {args:src tests}",
+    "ruff format --diff {args:src tests}",
+]
 all = ["style", "typing"]
+fmt = [
+    "ruff check --fix {args:src tests}",
+    "ruff format {args:src tests}",
+    "style",
+]
 
 ###
 ### ruff
 ###
 
 [tool.ruff]
-target-version = "py311"
-line-length = 100
-indent-width = 4
-fix = true
-show-fixes = true
+target-version    = "py311"
+line-length       = 100
+indent-width      = 4
+fix               = true
+show-fixes        = true
 respect-gitignore = true
-src = ["src", "tests"]
-exclude = [
-    ".direnv",
-    ".git",
-    ".mypy_cache",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".nox",
-    ".venv",
-    "venv",
-    "__pypackages__",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "dev",
-]
+src               = ["src", "tests"]
 
 [tool.ruff.lint]
-select = [
-    "A",
-    "ARG",
-    "B",
-    "C",
-    "DTZ",
-    "E",
-    "EM",
-    "F",
-    "FBT",
-    "I",
-    "ICN",
-    "ISC",
-    "N",
-    "PLC",
-    "PLE",
-    "PLR",
-    "PLW",
-    "Q",
-    "RUF",
-    "S",
-    "T",
-    "TID",
-    "UP",
-    "W",
-    "YTT",
-]
+select = ["ALL"]
 ignore = [
-    "E501",
-    "D103",
+    "ANN002",
+    "ANN003",
+    "ANN401",
+    "BLE001",
+    "COM812",
     "D100",
     "D102",
-    "PLR2004",
-    "D403",
-    "ISC001",
-    "FBT001",
-    "FBT002",
-    "FBT003",
+    "D103",
+    "EM101",
+    "ERA001",
+    "FBT",
+    "G004",
+    "SLF001",
+    "TRY003",
+    "TRY301",
 ]
-unfixable = ["F401"]
+fixable = ["ALL"]
+unfixable = []
 
 [tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
+quote-style               = "double"
+indent-style              = "space"
 skip-magic-trailing-comma = false
-line-ending = "lf"
-docstring-code-format = true
+line-ending               = "lf"
+docstring-code-format     = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["D104"]
 "__about__.py" = ["D104", "F841"]
-"tests/**/*" = ["PLR2004", "S101", "TID252"]
+"tests/*" = [
+    "E501",
+    "PLR2004",
+    "S101",
+    "TID252",
+    "PGH003",
+]
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
-known-first-party = ["octodns_netbox_dns"]
+known-first-party = [
+    "octodns_netbox_dns",
+]
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
@@ -178,7 +180,13 @@ max-branches = 24
 max-returns = 12
 max-statements = 100
 max-args = 15
-allow-magic-value-types = ["str", "bytes", "complex", "float", "int"]
+allow-magic-value-types = [
+    "bytes",
+    "complex",
+    "float",
+    "int",
+    "str",
+]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 15
@@ -195,18 +203,18 @@ max-doc-length = 100
 
 [tool.mypy]
 #plugins = ["pydantic.mypy"]
-follow_imports = "silent"
-warn_redundant_casts = true
-warn_unused_ignores = true
-disallow_any_generics = true
-check_untyped_defs = true
-no_implicit_reexport = true
+follow_imports         = "silent"
+warn_redundant_casts   = true
+warn_unused_ignores    = true
+disallow_any_generics  = true
+check_untyped_defs     = true
+no_implicit_reexport   = true
 ignore_missing_imports = true
-warn_return_any = true
-pretty = true
-show_column_numbers = true
-show_error_codes = true
-show_error_context = true
+warn_return_any        = true
+pretty                 = true
+show_column_numbers    = true
+show_error_codes       = true
+show_error_context     = true
 
 #[tool.pydantic-mypy]
 #init_forbid_extra = true
@@ -229,17 +237,25 @@ filterwarnings = [
 ###
 
 [tool.coverage.run]
-source_pkgs = ["octodns_netbox_dns", "tests"]
+source_pkgs = [
+    "octodns_netbox_dns",
+    "tests",
+]
 branch = true
 parallel = true
-omit = ["src/octodns_netbox_dns/__about__.py"]
+omit = [
+    "src/octodns_netbox_dns/__about__.py",
+]
 
 [tool.coverage.paths]
 octodns_netbox_dns = [
     "src/octodns_netbox_dns",
     "*/octodns-netbox-dns/src/octodns_netbox_dns",
 ]
-tests = ["tests", "*/octodns-netbox-dns/tests"]
+tests = [
+    "tests",
+    "*/octodns-netbox-dns/tests",
+]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration

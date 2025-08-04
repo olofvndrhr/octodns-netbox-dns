@@ -11,15 +11,15 @@ import pynetbox.core.response
 
 
 class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
-    """OctoDNS provider for NetboxDNS"""
+    """OctoDNS provider for NetboxDNS."""
 
     SUPPORTS_GEO = False
-    SUPPORTS_DYNAMIC = True  # pyright: ignore
+    SUPPORTS_DYNAMIC = True  # pyright: ignore[reportIncompatibleMethodOverride]
     SUPPORTS_ROOT_NS = True
     SUPPORTS_MULTIVALUE_PTR = True
 
     # record types which are commented out, are not supported by the Netbox DNS plugin
-    SUPPORTS = {  # noqa
+    SUPPORTS = {  # noqa: RUF012
         "A",
         "AAAA",
         # "ALIAS",
@@ -42,28 +42,28 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
     def __init__(
         self,
-        id: int,  # noqa
+        id: int,  # noqa: A002
         url: str,
         token: str,
         view: str | None | Literal[False] = None,
-        replace_duplicates=False,
-        make_absolute=False,
-        disable_ptr=True,
-        insecure_request=False,
-        zone_status_filter="active",
-        record_status_filter="active",
-        max_page_size=0,
+        replace_duplicates: bool = False,
+        make_absolute: bool = False,
+        disable_ptr: bool = True,
+        insecure_request: bool = False,
+        zone_status_filter: str = "active",
+        record_status_filter: str = "active",
+        max_page_size: int = 0,
         *args,
         **kwargs,
     ) -> None:
-        """initialize the NetBoxDNSProvider"""
+        """Initialize the NetBoxDNSProvider."""
         self.log = logging.getLogger(f"NetBoxDNSProvider[{id}]")
 
         super().__init__(id, *args, **kwargs)
 
         self.api = pynetbox.core.api.Api(url, token)
         if insecure_request:
-            import urllib3  # noqa
+            import urllib3  # noqa: PLC0415
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             self.api.http_session.verify = False
@@ -79,7 +79,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self.log.debug(f"__init__: {_init_info}")
 
     def _make_absolute(self, value: str, force: bool = False) -> str:
-        """return dns name with trailing dot to make it absolute
+        """Return dns name with trailing dot to make it absolute.
 
         @param value: dns record value
         @param force: when `True`, disregard configuration option `make_absolute`
@@ -108,8 +108,9 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         return fixed
 
     def _get_nb_view(self, view: str | None | Literal[False]) -> dict[str, int]:
-        """get the correct netbox view.
-        views are required since netbox-plugin-dns>=1.0.0
+        """Get the correct netbox view.
+
+        views are required since netbox-plugin-dns>=1.0.0.
 
         @param view: `None` for no view filter, else the view name
 
@@ -134,7 +135,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self,
         zone_name: str,
     ) -> pynetbox.core.response.Record:
-        """given a zone name and a view name, look it up in NetBox.
+        """Given a zone name and a view name, look it up in NetBox.
 
         @param name: name of the dns zone
         @param view: the netbox view id in the api query format
@@ -156,7 +157,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         return nb_zone
 
     def _format_rdata(self, rcd_type: str, rcd_value: str) -> str | dict[str, Any]:
-        """format netbox record values to correct octodns record values
+        """Format netbox record values to correct octodns record values.
 
         @param rcd_type: record type
         @param rcd_value: record value
@@ -238,10 +239,10 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         self.log.debug(rf"formatted record value={value}")
 
-        return value  # type:ignore
+        return value  # type: ignore[no-any-return]
 
     def _format_nb_records(self, zone: octodns.zone.Zone) -> list[dict[str, Any]]:
-        """format netbox dns records to the octodns format
+        """Format netbox dns records to the octodns format.
 
         @param zone: octodns zone
 
@@ -292,7 +293,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     def populate(
         self, zone: octodns.zone.Zone, target: bool = False, lenient: bool = False
     ) -> bool:
-        """get all the records of a zone from NetBox and add them to the OctoDNS zone
+        """Get all the records of a zone from NetBox and add them to the OctoDNS zone.
 
         @param zone: octodns zone
         @param target: when `True`, load the current state of the provider.
@@ -324,7 +325,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         return True
 
     def _format_changeset(self, change: Any) -> set[str]:
-        """format the changeset
+        """Format the changeset.
 
         @param change: the raw changes
 
@@ -358,7 +359,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     #     return True  # currently unused
 
     def _apply(self, plan: octodns.provider.plan.Plan) -> None:
-        """apply the changes to the NetBox DNS zone.
+        """Apply the changes to the NetBox DNS zone.
 
         @param plan: the planned changes
 
@@ -447,7 +448,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                         )
 
     def list_zones(self) -> list[str]:
-        """get all zones from netbox
+        """Get all zones from netbox.
 
         @return: a list with all active zones
         """

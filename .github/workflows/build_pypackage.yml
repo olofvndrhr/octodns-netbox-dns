@@ -1,0 +1,35 @@
+name: build and release pypackage
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  release-pypackage:
+    runs-on: ubuntu-latest
+    env:
+      HATCH_INDEX_REPO: main
+      HATCH_INDEX_USER: __token__
+      HATCH_INDEX_AUTH: ${{ secrets.PACKAGE_TOKEN }}
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: install hatch
+        run: pip install -U hatch hatchling
+
+      - name: build package
+        run: hatch build --clean
+
+      - name: publish package
+        if: github.event_name != 'pull_request'
+        run: hatch publish --yes --no-prompt

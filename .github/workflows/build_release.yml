@@ -1,4 +1,4 @@
-name: build pypackage and create release
+name: build and create release
 
 on:
   push:
@@ -11,17 +11,14 @@ on:
 jobs:
   release-github:
     runs-on: ubuntu-latest
-    env:
-      HATCH_INDEX_REPO: main
-      HATCH_INDEX_USER: __token__
-      HATCH_INDEX_AUTH: ${{ secrets.PACKAGE_TOKEN }}
     steps:
       - name: checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: setup python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -43,10 +40,6 @@ jobs:
       - name: get release notes
         id: release-notes
         uses: olofvndrhr/releasenote-gen@v1
-
-      - name: publish package
-        if: github.event_name != 'pull_request'
-        run: hatch publish --yes --no-prompt
 
       - name: create github release
         uses: ncipollo/release-action@v1

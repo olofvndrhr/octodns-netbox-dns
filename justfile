@@ -40,24 +40,24 @@ create_reqs:
     @echo "creating requirements"
     pipreqs --force --savepath requirements.txt src/octodns_netbox_dns
 
-lint:
+lint *args:
     just show_system_info
-    hatch run lint:style
-    hatch run lint:typing
+    hatch run lint:style {{ args }}
+    hatch run lint:typing {{ args }}
 
 format *args:
     just show_system_info
     hatch run lint:fmt {{ args }}
 
-check:
-    just lint
-    just format
+check *args:
+    just lint {{ args }}
+    just format {{ args }}
 
-build:
-    hatch build --clean
+build *args:
+    hatch build --clean {{ args }}
 
-test:
-    hatch run default:test
+test *args:
+    hatch run test:test {{ args }}
 
 up:
     docker compose -f dev/compose.yml build
@@ -72,19 +72,19 @@ clean:
     rm -rf dev/netbox-data/*
 
 sync *args:
-    hatch -v run default:sync {{ args }}
+    hatch -v run test:sync {{ args }}
 
 sync2 *args:
-    hatch -v run default:sync {{ args }}
+    hatch -v run test:sync {{ args }}
 
 dump *args:
-    hatch -v run default:dump {{ args }}
+    hatch -v run test:dump {{ args }}
 
 dump2 *args:
-    hatch -v run default:dump2 {{ args }}
+    hatch -v run test:dump2 {{ args }}
 
 validate *args:
-    hatch -v run default:validate {{ args }}
+    hatch -v run test:validate {{ args }}
 
 validate2 *args:
-    hatch -v run default:validate {{ args }}
+    hatch -v run test:validate {{ args }}

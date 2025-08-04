@@ -28,4 +28,4 @@ jobs:
         run: hatch run lint:typing
 
       - name: run tests
-        run: hatch run default:test
+        run: hatch run test:test

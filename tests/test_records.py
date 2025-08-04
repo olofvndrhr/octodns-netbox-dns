@@ -10,10 +10,10 @@ DEFAULT_CONFIG = {
     "make_absolute": True,
 }
 
-nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)
+nbdns = NetBoxDNSProvider(**DEFAULT_CONFIG)  # type:ignore
 
 
-def test_a():
+def test_a() -> None:
     rcd_type = "A"
     rcd_value = "127.0.0.1"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -21,7 +21,7 @@ def test_a():
     assert value == "127.0.0.1"
 
 
-def test_aaaa():
+def test_aaaa() -> None:
     rcd_type = "AAAA"
     rcd_value = "fc07::1"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -29,11 +29,11 @@ def test_aaaa():
     assert value == "fc07::1"
 
 
-def test_alias():
+def test_alias() -> None:
     pass  # not supported
 
 
-def test_caa():
+def test_caa() -> None:
     rcd_type = "CAA"
     rcd_value = '0 issue "letsencrypt.org"'
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -45,7 +45,7 @@ def test_caa():
     }
 
 
-def test_cname():
+def test_cname() -> None:
     rcd_type = "CNAME"
     rcd_value = "test.example.com."
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -53,7 +53,7 @@ def test_cname():
     assert value == "test.example.com."
 
 
-def test_dname():
+def test_dname() -> None:
     rcd_type = "DNAME"
     rcd_value = "example.com."
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -61,11 +61,11 @@ def test_dname():
     assert value == "example.com."
 
 
-def test_ds():
+def test_ds() -> None:
     pass  # not supported
 
 
-def test_loc():
+def test_loc() -> None:
     rcd_type = "LOC"
     rcd_value = "0 0 0 N 0 0 0 W 1 1 10000 10"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -86,7 +86,7 @@ def test_loc():
     }
 
 
-def test_mx():
+def test_mx() -> None:
     rcd_type = "MX"
     rcd_value = "10 mx.example.com"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -97,11 +97,11 @@ def test_mx():
     }
 
 
-def test_naptr():
+def test_naptr() -> None:
     pass  # not supported
 
 
-def test_ns():
+def test_ns() -> None:
     rcd_type = "NS"
     rcd_value = "ns.example.com."
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -109,7 +109,7 @@ def test_ns():
     assert value == "ns.example.com."
 
 
-def test_ptr():
+def test_ptr() -> None:
     rcd_type = "PTR"
     rcd_value = "host.example.com."
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -117,11 +117,11 @@ def test_ptr():
     assert value == "host.example.com."
 
 
-def test_spf():
+def test_spf() -> None:
     pass  # not supported
 
 
-def test_srv():
+def test_srv() -> None:
     rcd_type = "SRV"
     rcd_value = r"0 5 25565 mc.example.com"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -134,7 +134,7 @@ def test_srv():
     }
 
 
-def test_sshfp():
+def test_sshfp() -> None:
     rcd_type = "SSHFP"
     rcd_value = "4 2 123456789abcdef67890123456789abcdef67890123456789abcdef123456789"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -146,11 +146,11 @@ def test_sshfp():
     }
 
 
-def test_tlsa():
+def test_tlsa() -> None:
     pass  # not supported
 
 
-def test_txt1():
+def test_txt1() -> None:
     rcd_type = "TXT"
     rcd_value = "v=TLSRPTv1; rua=mailto:tlsrpt@example.com"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -158,7 +158,7 @@ def test_txt1():
     assert value == r"v=TLSRPTv1\; rua=mailto:tlsrpt@example.com"
 
 
-def test_txt2():
+def test_txt2() -> None:
     rcd_type = "TXT"
     rcd_value = r"v=TLSRPTv1\; rua=mailto:tlsrpt@example.com"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -166,7 +166,7 @@ def test_txt2():
     assert value == r"v=TLSRPTv1\\; rua=mailto:tlsrpt@example.com"
 
 
-def test_txt3():
+def test_txt3() -> None:
     rcd_type = "TXT"
     rcd_value = r"v=DKIM1; k=rsa; p=/0f+sikE+k9ZKbn1BJu0/soWht/+Zd/nc/+Gy//mQ1B5sCKYKgAmYTSWkxRjFzkc6KAQhi+/IzaFogEV050wcscdC8Rc8lAQzDUFrMs2ZZK1vFtkwIDAQAB"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -177,7 +177,7 @@ def test_txt3():
     )
 
 
-def test_txt4():
+def test_txt4() -> None:
     rcd_type = "TXT"
     rcd_value = r"t=y\;o=~\;"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -185,7 +185,7 @@ def test_txt4():
     assert value == r"t=y\\;o=~\\;"
 
 
-def test_txt5():
+def test_txt5() -> None:
     rcd_type = "TXT"
     rcd_value = r"t=y;o=~;"
     value = nbdns._format_rdata(rcd_type, rcd_value)
@@ -193,5 +193,5 @@ def test_txt5():
     assert value == r"t=y\;o=~\;"
 
 
-def test_urlfwd():
+def test_urlfwd() -> None:
     pass  # not supported
