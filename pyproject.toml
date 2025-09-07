@@ -48,9 +48,9 @@ packages = ["src/octodns_netbox_dns"]
 
 [tool.hatch.envs.test]
 dependencies = [
-    "pytest==8.4.1",
-    "coverage==7.10.1",
-    "octodns==1.12.0",
+    "pytest==8.4.2",
+    "coverage==7.10.5",
+    "octodns~=1.13.0",
     "octodns-spf==1.0.0",
 ]
 
@@ -94,7 +94,7 @@ python = "3.11"
 detached = true
 dependencies = [
     "mypy==1.17.1",
-    "ruff==0.12.7",
+    "ruff==0.12.12",
 ]
 
 [tool.hatch.envs.lint.scripts]
