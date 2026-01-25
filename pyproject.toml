@@ -21,8 +21,8 @@ classifiers = [
 ]
 keywords = []
 dependencies = [
-    "pynetbox~=7.5.0",
-    "dnspython~=2.7.0",
+    "pynetbox>=7.5.0",
+    "dnspython>=2.7.0",
 ]
 
 [project.urls]
@@ -48,9 +48,9 @@ packages = ["src/octodns_netbox_dns"]
 
 [tool.hatch.envs.test]
 dependencies = [
-    "pytest==8.4.2",
-    "coverage==7.10.5",
-    "octodns~=1.13.0",
+    "pytest==9.0.2",
+    "coverage==7.13.2",
+    "octodns~=1.15.0",
     "octodns-spf==1.0.0",
 ]
 
@@ -93,8 +93,8 @@ validate2 = [
 python = "3.11"
 detached = true
 dependencies = [
-    "mypy==1.17.1",
-    "ruff==0.12.12",
+    "mypy==1.19.1",
+    "ruff==0.14.14",
 ]
 
 [tool.hatch.envs.lint.scripts]
