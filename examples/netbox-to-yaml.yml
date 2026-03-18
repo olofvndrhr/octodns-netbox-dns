@@ -1,33 +1,45 @@
 manager:
-  max_workers: 2
+  max_workers: 1
   plan_outputs:
     html:
       class: octodns.provider.plan.PlanMarkdown
 
 processors:
-  spf:
-    class: octodns_spf.SpfDnsLookupProcessor
+  validate-spf:
+    class: octodns.processor.spf.SpfDnsLookupProcessor
+
+  ensure-trailing-dot:
+    class: octodns.processor.trailing_dots.EnsureTrailingDots
+
+  min-max-ttl:
+    class: octodns.processor.restrict.TtlRestrictionFilter
+    allowed_ttls: [60, 300, 600, 900, 1800, 3600, 7200, 10800]
 
 providers:
-  config:
+  yaml:
     class: octodns.provider.yaml.YamlProvider
     directory: ./zones
     default_ttl: 3600
     enforce_order: true
     populate_should_replace: false
+
   netbox:
     class: octodns_netbox_dns.NetBoxDNSProvider
-    url: https://netbox.example.net
+    url: "https://netbox.example.net"
     token: env/NETBOX_API_KEY
-    view: false
     replace_duplicates: false
     make_absolute: true
+    zone_status_filter: active
+    record_status_filter: active
+    max_page_size: 100
 
 zones:
   "*":
     sources:
       - netbox
     processors:
-      - spf
+      - validate-spf
+      - ensure-trailing-dot
+      - min-max-ttl
     targets:
-      - config
+      - yaml

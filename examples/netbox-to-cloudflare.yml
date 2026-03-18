@@ -5,30 +5,46 @@ manager:
       class: octodns.provider.plan.PlanMarkdown
 
 processors:
-  spf:
+  validate-spf:
     class: octodns_spf.SpfDnsLookupProcessor
+
   no-root-ns:
     class: octodns.processor.filter.IgnoreRootNsFilter
+
+  ignore-cf-emailrouting:
+    class: octodns.processor.filter.NameRejectlistFilter
+    rejectlist:
+      - /^cf\d{4}-\d._domainkey/
+
+  ignore-acme:
+    class: octodns.processor.acme.AcmeManagingProcessor
+
   ignore-non-public:
     class: octodns.processor.filter.NetworkValueRejectlistFilter
     rejectlist:
-      - 127.0.0.0/8 # loopback
+      - 127.0.0.0/8 # ipv4 loopback
       - 192.168.0.0/16 # rfc1918
       - 172.16.0.0/12 # rfc1918
       - 10.0.0.0/8 # rfc1918
-      - ::1/128 # loopback
+      - 100.64.0.0/10 # cgnat
+      - 169.254.0.0/16 # ipv4 link-local
+      - 224.0.0.0/4 # ipv4 multicast
+      - ::1/128 # ipv6 loopback
       - fc00::/7 # ula
-      - fe80::/10 # link-local
-      - f00::/8 # multicast
+      - fe80::/10 # ipv6 link-local
+      - f00::/8 # ipv6 multicast
 
 providers:
   netbox:
     class: octodns_netbox_dns.NetBoxDNSProvider
-    url: https://netbox.example.net
+    url: "https://netbox.example.net"
     token: env/NETBOX_API_KEY
-    view: false
     replace_duplicates: false
     make_absolute: true
+    zone_status_filter: active
+    record_status_filter: active
+    max_page_size: 100
+
   cloudflare:
     class: octodns_cloudflare.CloudflareProvider
     token: env/CLOUDFLARE_API_KEY
@@ -45,8 +61,10 @@ zones:
     sources:
       - netbox
     processors:
-      - spf
+      - validate-spf
       - no-root-ns
+      - ignore-cf-emailrouting
+      - ignore-acme
       - ignore-non-public
     targets:
       - cloudflare
