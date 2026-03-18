@@ -48,6 +48,8 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         view: str | None | Literal[False] = None,
         replace_duplicates: bool = False,
         make_absolute: bool = False,
+        ns_ttl_mode: Literal["soa_refresh", "record", "fixed"] = "soa_refresh",
+        ns_ttl_value: int = 14400,
         disable_ptr: bool = True,
         insecure_request: bool = False,
         zone_status_filter: str = "active",
@@ -70,6 +72,8 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self.nb_view = self._get_nb_view(view)
         self.replace_duplicates = replace_duplicates
         self.make_absolute = make_absolute
+        self.ns_ttl_mode = ns_ttl_mode
+        self.ns_ttl_value = ns_ttl_value
         self.disable_ptr = disable_ptr
         self.zone_status_filter = {"status": zone_status_filter} if zone_status_filter else {}
         self.record_status_filter = {"status": record_status_filter} if record_status_filter else {}
@@ -77,6 +81,20 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         _init_info = {k: v for k, v in locals().items() if k not in ["self", "__class__", "token"]}
         self.log.debug(f"__init__: {_init_info}")
+        config_parts = [
+            f"view={view}",
+            f"ns_ttl_mode={self.ns_ttl_mode}",
+        ]
+        if self.ns_ttl_mode == "fixed":
+            config_parts.append(f"ns_ttl_value={self.ns_ttl_value}")
+        config_parts.extend(
+            [
+                f"zone_status_filter={zone_status_filter}",
+                f"record_status_filter={record_status_filter}",
+                f"max_page_size={self.max_page_size}",
+            ]
+        )
+        self.log.info("config: %s", " ".join(config_parts))
 
     def _make_absolute(self, value: str, force: bool = False) -> str:
         """Return dns name with trailing dot to make it absolute.
@@ -106,6 +124,25 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         fixed = value.replace(r"\\", "\\").replace(r"\;", ";")
         self.log.debug(rf"in='{value}', unescaped='{fixed}'")
         return fixed
+
+    def _record_ttl(
+        self,
+        nb_zone: pynetbox.core.response.Record,
+        nb_record: pynetbox.core.response.Record,
+    ) -> int:
+        ttl = int(nb_record.ttl or nb_zone.default_ttl)
+        if nb_record.type != "NS":
+            return ttl
+
+        if self.ns_ttl_mode == "soa_refresh":
+            return int(nb_zone.soa_refresh)
+        if self.ns_ttl_mode == "record":
+            return ttl
+        if self.ns_ttl_mode == "fixed":
+            return self.ns_ttl_value if nb_record.name == "@" else ttl
+
+        msg = f"invalid ns_ttl_mode={self.ns_ttl_mode}"
+        raise ValueError(msg)
 
     def _get_nb_view(self, view: str | None | Literal[False]) -> dict[str, int]:
         """Get the correct netbox view.
@@ -264,9 +301,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                 else nb_record.value
             )
             rcd_type: str = nb_record.type
-            rcd_ttl: int = nb_record.ttl or nb_zone.default_ttl
-            if nb_record.type == "NS":
-                rcd_ttl = nb_zone.soa_refresh
+            rcd_ttl: int = self._record_ttl(nb_zone, nb_record)
 
             rcd_data = {
                 "name": rcd_name,

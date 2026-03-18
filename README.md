@@ -28,6 +28,15 @@ providers:
         # Make CNAME, MX and SRV records absolute if they are missing the trailing "."
         # [optional, default=false]
         make_absolute: false
+        # Control how NS TTL is derived when reading from NetBox.
+        # soa_refresh -> preserve the current behavior and use the zone's soa_refresh for all NS
+        # record      -> use the record TTL stored in NetBox, falling back to zone.default_ttl
+        # fixed       -> use ns_ttl_value for apex NS and record/default TTL for delegated NS
+        # [optional, default=soa_refresh]
+        ns_ttl_mode: soa_refresh
+        # TTL value used when ns_ttl_mode=fixed for apex NS records.
+        # [optional, default=14400]
+        ns_ttl_value: 14400
         # Disable automatic PTR record creating in the NetboxDNS plugin.
         # [optional, default=true]
         disable_ptr: true
