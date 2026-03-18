@@ -3,7 +3,7 @@ services:
     image: netbox-dev:build
     container_name: netbox-dev-app
     restart: unless-stopped
-    security_opt: ["no-new-privileges:true"]
+    security_opt: ["no-new-privileges=true"]
     build:
       dockerfile: Dockerfile
     depends_on:
@@ -33,7 +33,7 @@ services:
     container_name: netbox-dev-db
     restart: unless-stopped
     user: ${UID}
-    security_opt: ["no-new-privileges:true"]
+    security_opt: ["no-new-privileges=true"]
     networks:
       - appnet
     volumes:
@@ -51,7 +51,7 @@ services:
     container_name: netbox-dev-redis
     restart: unless-stopped
     user: ${UID}
-    security_opt: ["no-new-privileges:true"]
+    security_opt: ["no-new-privileges=true"]
     networks:
       - appnet
     volumes:
