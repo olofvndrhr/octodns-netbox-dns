@@ -94,6 +94,7 @@ python = "3.11"
 dependencies = [
   "ruff==0.15.6",
   "basedpyright==1.38.2",
+  "octodns~=1.15.0",
 ]
 
 [tool.hatch.envs.lint.scripts]
@@ -206,8 +207,9 @@ pythonVersion = "3.11"
 include = ["src", "tests"]
 typeCheckingMode = "standard"
 reportMissingTypeStubs = false
+reportAttributeAccessIssue = false
 executionEnvironments = [
-  { root = "tests", reportMissingImports = false },
+  { root = "tests", reportMissingImports = false, reportArgumentType = false },
 ]
 
 ##

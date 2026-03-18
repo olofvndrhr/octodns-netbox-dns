@@ -6,15 +6,15 @@ import octodns.provider.base
 import octodns.provider.plan
 import octodns.record
 import octodns.zone
-import pynetbox.core.api
-import pynetbox.core.response
+from pynetbox.core.api import Api
+from pynetbox.core.response import Record, RecordSet
 
 
 class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     """OctoDNS provider for NetboxDNS."""
 
     SUPPORTS_GEO = False
-    SUPPORTS_DYNAMIC = True  # pyright: ignore[reportIncompatibleMethodOverride]
+    SUPPORTS_DYNAMIC = True  # pyright: ignore[reportAssignmentType, reportIncompatibleMethodOverride]
     SUPPORTS_ROOT_NS = True
     SUPPORTS_MULTIVALUE_PTR = True
 
@@ -63,12 +63,13 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         super().__init__(id, *args, **kwargs)
 
-        self.api = pynetbox.core.api.Api(url, token)
+        self.api = Api(url, token)
         if insecure_request:
             import urllib3  # noqa: PLC0415
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             self.api.http_session.verify = False
+
         self.nb_view = self._get_nb_view(view)
         self.replace_duplicates = replace_duplicates
         self.make_absolute = make_absolute
@@ -79,22 +80,10 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self.record_status_filter = {"status": record_status_filter} if record_status_filter else {}
         self.max_page_size = max_page_size
 
-        _init_info = {k: v for k, v in locals().items() if k not in ["self", "__class__", "token"]}
-        self.log.debug(f"__init__: {_init_info}")
-        config_parts = [
-            f"view={view}",
-            f"ns_ttl_mode={self.ns_ttl_mode}",
-        ]
-        if self.ns_ttl_mode == "fixed":
-            config_parts.append(f"ns_ttl_value={self.ns_ttl_value}")
-        config_parts.extend(
-            [
-                f"zone_status_filter={zone_status_filter}",
-                f"record_status_filter={record_status_filter}",
-                f"max_page_size={self.max_page_size}",
-            ]
-        )
-        self.log.info("config: %s", " ".join(config_parts))
+        _provider_infos = {
+            k: v for k, v in locals().items() if k not in ["self", "__class__", "token"]
+        }
+        self.log.info(f"provider config: {_provider_infos}")
 
     def _make_absolute(self, value: str, force: bool = False) -> str:
         """Return dns name with trailing dot to make it absolute.
@@ -127,22 +116,24 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
     def _record_ttl(
         self,
-        nb_zone: pynetbox.core.response.Record,
-        nb_record: pynetbox.core.response.Record,
+        nb_zone: Record,
+        nb_record: Record,
     ) -> int:
-        ttl = int(nb_record.ttl or nb_zone.default_ttl)
+        ttl: int = nb_record.ttl or nb_zone.default_ttl  # pyright: ignore[reportAssignmentType]
         if nb_record.type != "NS":
             return ttl
 
-        if self.ns_ttl_mode == "soa_refresh":
-            return int(nb_zone.soa_refresh)
-        if self.ns_ttl_mode == "record":
-            return ttl
-        if self.ns_ttl_mode == "fixed":
-            return self.ns_ttl_value if nb_record.name == "@" else ttl
-
-        msg = f"invalid ns_ttl_mode={self.ns_ttl_mode}"
-        raise ValueError(msg)
+        match self.ns_ttl_mode:
+            case "soa_refresh":
+                return nb_zone.soa_refresh  # pyright: ignore[reportReturnType]
+            case "record":
+                return ttl
+            case "fixed":
+                return self.ns_ttl_value if nb_record.name == "@" else ttl
+            case _:
+                msg = f"invalid ns_ttl_mode={self.ns_ttl_mode}"
+                self.log.error(msg)
+                raise ValueError(msg)
 
     def _get_nb_view(self, view: str | None | Literal[False]) -> dict[str, int]:
         """Get the correct netbox view.
@@ -156,9 +147,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         if not view:
             return {}
 
-        nb_view: pynetbox.core.response.Record | None = self.api.plugins.netbox_dns.views.get(
-            name=view
-        )
+        nb_view: Record | None = self.api.plugins.netbox_dns.views.get(name=view)
         if nb_view is None:
             msg = f"dns view={view}, has not been found"
             self.log.error(msg)
@@ -171,7 +160,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     def _get_nb_zone(
         self,
         zone_name: str,
-    ) -> pynetbox.core.response.Record:
+    ) -> Record:
         """Given a zone name and a view name, look it up in NetBox.
 
         @param name: name of the dns zone
@@ -181,7 +170,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         @return: the netbox dns zone object
         """
-        nb_zone: pynetbox.core.response.Record | None = self.api.plugins.netbox_dns.zones.get(
+        nb_zone: Record | None = self.api.plugins.netbox_dns.zones.get(
             name=zone_name[:-1], **self.nb_view
         )
 
@@ -288,7 +277,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         records: dict[tuple[str, str], dict[str, Any]] = {}
 
         nb_zone = self._get_nb_zone(zone.name)
-        nb_records: pynetbox.core.response.RecordSet = self.api.plugins.netbox_dns.records.filter(
+        nb_records: RecordSet = self.api.plugins.netbox_dns.records.filter(
             limit=self.max_page_size,
             zone_id=nb_zone.id,
             **self.record_status_filter,
@@ -422,13 +411,11 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                         )
 
                 case octodns.record.Delete():
-                    nb_records: pynetbox.core.response.RecordSet = (
-                        self.api.plugins.netbox_dns.records.filter(
-                            limit=self.max_page_size,
-                            zone_id=nb_zone.id,
-                            name=change.existing.name,
-                            type=change.existing._type,
-                        )
+                    nb_records: RecordSet = self.api.plugins.netbox_dns.records.filter(
+                        limit=self.max_page_size,
+                        zone_id=nb_zone.id,
+                        name=change.existing.name,
+                        type=change.existing._type,
                     )
 
                     existing_changeset = self._format_changeset(change.existing)

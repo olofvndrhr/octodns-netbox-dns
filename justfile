@@ -84,7 +84,7 @@ sync *args:
     hatch -v run test:sync {{ args }}
 
 sync2 *args:
-    hatch -v run test:sync {{ args }}
+    hatch -v run test:sync2 {{ args }}
 
 dump *args:
     hatch -v run test:dump {{ args }}
@@ -96,4 +96,4 @@ validate *args:
     hatch -v run test:validate {{ args }}
 
 validate2 *args:
-    hatch -v run test:validate {{ args }}
+    hatch -v run test:validate2 {{ args }}
