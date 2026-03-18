@@ -1,14 +1,16 @@
 #!/usr/bin/env just --justfile
 
-default: show_receipts
+default: show-receipts
 
 set shell := ["bash", "-uc"]
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 set dotenv-load := true
 
-show_receipts:
+show-receipts:
+    just show-system-info
     just --list
 
-show_system_info:
+show-system-info:
     @echo "=================================="
     @echo "os : {{ os() }}"
     @echo "arch: {{ arch() }}"
@@ -20,44 +22,51 @@ show_system_info:
 setup:
     asdf install
 
-create_venv:
-    @echo "creating venv"
-    python3 -m pip install --upgrade pip setuptools wheel
-    python3 -m venv venv
+create-venv:
+    @echo "creating venvs"
+    hatch env create
+    hatch env show
 
-install_deps:
-    @echo "installing dependencies"
-    python3 -m hatch dep show requirements --project-only > /tmp/requirements.txt
-    pip3 install -r /tmp/requirements.txt
+create-reqs:
+    @echo "creating requirements files"
+    hatch dep show requirements --project-only > requirements.txt
+    hatch dep show requirements --env-only > requirements-dev.txt
 
-install_deps_dev:
-    @echo "installing dev dependencies"
-    python3 -m hatch dep show requirements --project-only > /tmp/requirements.txt
-    python3 -m hatch dep show requirements --env-only >> /tmp/requirements.txt
-    pip3 install -r /tmp/requirements.txt
+create-pipreqs:
+    @echo "creating requirements (pipreqs)"
+    pipreqs --force --savepath requirements.txt src/
 
-create_reqs:
-    @echo "creating requirements"
-    pipreqs --force --savepath requirements.txt src/octodns_netbox_dns
+install-deps:
+    @echo "installing dependencies locally"
+    hatch dep show requirements --project-only > requirements.tmp
+    pip install -r requirements.tmp
+
+install-deps-dev:
+    @echo "installing dev dependencies locally"
+    hatch dep show requirements --env-only > requirements-dev.tmp
+    pip install -r requirements-dev.tmp
 
 lint *args:
-    just show_system_info
-    hatch run lint:style {{ args }}
-    hatch run lint:typing {{ args }}
+    @echo "linting project"
+    shfmt -d -i 4 -bn -ci -sr .
+    hatch run lint:all {{ args }}
 
 format *args:
-    just show_system_info
+    @echo "formatting project"
+    shfmt -w -i 4 -bn -ci -sr .
     hatch run lint:fmt {{ args }}
 
-check *args:
-    just lint {{ args }}
-    just format {{ args }}
-
-build *args:
-    hatch build --clean {{ args }}
+check:
+    just format
+    just lint
 
 test *args:
+    @echo "running tests"
     hatch run test:test {{ args }}
+
+build *args:
+    @echo "building project"
+    hatch build --clean {{ args }}
 
 up:
     docker compose -f dev/compose.yml build
