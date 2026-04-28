@@ -146,6 +146,56 @@ def test_sshfp() -> None:
     }
 
 
+def test_svcb_alias_mode() -> None:
+    rcd_type = "SVCB"
+    rcd_value = "0 svc.example.com."
+    value = nbdns._format_rdata(rcd_type, rcd_value)
+
+    assert value == {
+        "svcpriority": 0,
+        "targetname": "svc.example.com.",
+        "svcparams": {},
+    }
+
+
+def test_svcb_service_mode() -> None:
+    rcd_type = "SVCB"
+    rcd_value = (
+        "1 svc.example.com. mandatory=alpn,port alpn=h2,h3 port=8443 "
+        "ipv4hint=192.0.2.1,192.0.2.2 ipv6hint=2001:db8::1 no-default-alpn ech=AED+CAAA"
+    )
+    value = nbdns._format_rdata(rcd_type, rcd_value)
+
+    assert value == {
+        "svcpriority": 1,
+        "targetname": "svc.example.com.",
+        "svcparams": {
+            "mandatory": ["alpn", "port"],
+            "alpn": ["h2", "h3"],
+            "port": "8443",
+            "ipv4hint": ["192.0.2.1", "192.0.2.2"],
+            "ipv6hint": ["2001:db8::1"],
+            "no-default-alpn": None,
+            "ech": "AED+CAAA",
+        },
+    }
+
+
+def test_https() -> None:
+    rcd_type = "HTTPS"
+    rcd_value = "1 example.com. alpn=h2,h3 port=443"
+    value = nbdns._format_rdata(rcd_type, rcd_value)
+
+    assert value == {
+        "svcpriority": 1,
+        "targetname": "example.com.",
+        "svcparams": {
+            "alpn": ["h2", "h3"],
+            "port": "443",
+        },
+    }
+
+
 def test_tlsa() -> None:
     rcd_type = "TLSA"
     rcd_value = "1 1 2 abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
