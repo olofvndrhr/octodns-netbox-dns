@@ -58,7 +58,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         zone_status_filter: str = "active",
         record_status_filter: str = "active",
         max_page_size: int = 0,
-        enable_threading: bool = False, # control pynetbox's multithread feature
+        enable_threading: bool = False,  # control pynetbox's multithread feature
         *args,
         **kwargs,
     ) -> None:
