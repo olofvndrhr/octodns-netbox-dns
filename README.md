@@ -54,8 +54,7 @@ providers:
     # A value of 0 means: show every item. Can cause errors with the NetBox setting: MAX_PAGE_SIZE
     # [optional, default=0]
     max_page_size: 0
-    # Threading 
-    # Allow multi threading, useful for large dns zones, see https://github.com/netbox-community/pynetbox#threading :
+    # Allow multi threading, useful for large dns zones, see: https://github.com/netbox-community/pynetbox#threading
     # [optional, default=False]
     enable_threading: False
 ```
