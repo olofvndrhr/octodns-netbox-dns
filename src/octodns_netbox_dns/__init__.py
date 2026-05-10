@@ -58,6 +58,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         zone_status_filter: str = "active",
         record_status_filter: str = "active",
         max_page_size: int = 0,
+        enable_threading: bool = False,
         *args,
         **kwargs,
     ) -> None:
@@ -66,7 +67,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         super().__init__(id, *args, **kwargs)
 
-        self.api = Api(url, token)
+        self.api = Api(url, token, threading=enable_threading)
         if insecure_request:
             import urllib3  # noqa: PLC0415
 
