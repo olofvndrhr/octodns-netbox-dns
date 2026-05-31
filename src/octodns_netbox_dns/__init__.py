@@ -38,7 +38,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         "SRV",
         "SSHFP",
         # "SVCB",
-        # "TLSA",
+        "TLSA",
         "TXT",
         # "URLFWD",
     }
@@ -259,7 +259,15 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                     "target": self._make_absolute(rdata.target.to_text()),
                 }
 
-            case "ALIAS" | "DS" | "NAPTR" | "SPF" | "TLSA" | "URLFWD" | "SOA":
+            case "TLSA":
+                value = {
+                    "certificate_usage": rdata.usage,
+                    "selector": rdata.selector,
+                    "matching_type": rdata.mtype,
+                    "certificate_association_data": rdata.cert.hex(),
+                }
+
+            case "ALIAS" | "DS" | "NAPTR" | "SPF" | "URLFWD" | "SOA":
                 self.log.debug(f"'{rcd_type}' record type not implemented. ignoring record")
                 raise NotImplementedError
 

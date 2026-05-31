@@ -147,7 +147,15 @@ def test_sshfp() -> None:
 
 
 def test_tlsa() -> None:
-    pass  # not supported
+    rcd_type = "TLSA"
+    rcd_value = "1 1 2 abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+    value = nbdns._format_rdata(rcd_type, rcd_value)
+    assert value == {
+        "certificate_usage": 1,
+        "selector": 1,
+        "matching_type": 2,
+        "certificate_association_data": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+    }
 
 
 def test_txt1() -> None:
