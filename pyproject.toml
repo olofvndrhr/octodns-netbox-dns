@@ -92,8 +92,8 @@ validate2 = [
 [tool.hatch.envs.lint]
 python = "3.11"
 dependencies = [
-  "ruff==0.15.9",
-  "basedpyright==1.39.0",
+  "ruff==0.15.13",
+  "basedpyright==1.39.4",
   "octodns~=1.15.0",
 ]
 
