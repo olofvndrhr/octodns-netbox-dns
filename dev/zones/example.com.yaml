@@ -74,6 +74,13 @@ sshfp1:
     algorithm: 4
     fingerprint: 123456789abcdef67890123456789abcdef67890123456789abcdef123456789
     fingerprint_type: 2
+tlsa1:
+  type: TLSA
+  value:
+    certificate_usage: 1
+    selector: 1
+    matching_type: 2
+    certificate_association_data: 123456789abcdef67890123456789abcdef67890123456789abcdef123456789
 txt1:
   type: TXT
   value: v=TLSRPTv1\; rua=mailto:tlsrpt@example.com
