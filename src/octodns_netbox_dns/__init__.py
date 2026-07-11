@@ -6,6 +6,7 @@ import octodns.provider.base
 import octodns.provider.plan
 import octodns.record
 import octodns.zone
+from dns.rdtypes.svcbbase import ParamKey
 from pynetbox.core.api import Api
 from pynetbox.core.response import Record, RecordSet
 
@@ -27,7 +28,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         "CNAME",
         "DNAME",
         # "DS",
-        # "HTTPS",
+        "HTTPS",
         "LOC",
         "MX",
         # "NAPTR",
@@ -37,7 +38,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         # "SPF",
         "SRV",
         "SSHFP",
-        # "SVCB",
+        "SVCB",
         "TLSA",
         "TXT",
         # "URLFWD",
@@ -186,6 +187,40 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
         return nb_zone
 
+    def _format_svcparams(self, params: Any) -> dict[str, Any]:
+        """Convert dnspython SVCB/HTTPS params to the octodns svcparams dict.
+
+        @param params: the `params` mapping from a parsed SVCB/HTTPS rdata
+
+        @return: a dict mapping svcparam keys to None, str or list values
+        """
+        svcparams: dict[str, Any] = {}
+        for key, param in params.items():
+            try:
+                name = ParamKey(key).name.lower().replace("_", "-")
+            except ValueError:
+                name = f"key{int(key)}"
+
+            if param is None:
+                svcparams[name] = None
+                continue
+
+            match name:
+                case "alpn":
+                    svcparams[name] = [v.decode() for v in param.ids]
+                case "mandatory":
+                    svcparams[name] = [
+                        ParamKey(k).name.lower().replace("_", "-") for k in param.keys
+                    ]
+                case "ipv4hint" | "ipv6hint":
+                    svcparams[name] = [str(a) for a in param.addresses]
+                case "port":
+                    svcparams[name] = str(param.port)
+                case _:
+                    svcparams[name] = param.to_text().strip('"')
+
+        return svcparams
+
     def _format_rdata(self, rcd_type: str, rcd_value: str) -> str | dict[str, Any]:
         """Format netbox record values to correct octodns record values.
 
@@ -265,6 +300,13 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                     "selector": rdata.selector,
                     "matching_type": rdata.mtype,
                     "certificate_association_data": rdata.cert.hex(),
+                }
+
+            case "SVCB" | "HTTPS":
+                value = {
+                    "svcpriority": rdata.priority,
+                    "targetname": self._make_absolute(rdata.target.to_text()),
+                    "svcparams": self._format_svcparams(rdata.params),
                 }
 
             case "ALIAS" | "DS" | "NAPTR" | "SPF" | "URLFWD" | "SOA":
