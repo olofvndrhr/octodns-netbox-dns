@@ -31,7 +31,7 @@ run = [{ task = "format" }, { task = "lint" }]
 [tasks.test]
 description = "Run tests"
 usage = '''
-arg "[args]" var=#true"
+arg "[args]" var=#true
 '''
 run = '''
 hatch run test:test {{ usage.args | join(sep=" ") }}
@@ -40,7 +40,7 @@ hatch run test:test {{ usage.args | join(sep=" ") }}
 [tasks.build]
 description = "Build project"
 usage = '''
-arg "[args]" var=#true"
+arg "[args]" var=#true
 '''
 run = '''
 hatch build --clean {{ usage.args | join(sep=" ") }}
@@ -68,8 +68,8 @@ run = "docker compose -f dev/compose.yml down"
 [tasks."dev:sync"]
 description = "Sync dev records"
 usage = '''
-arg <config> default="sync.yml"
-arg "[args]" var=#true"
+arg "<config>" default="sync.yml"
+arg "[args]" var=#true
 '''
 run = '''
 hatch -v run test:sync {{ usage.config }} {{ usage.args | join(sep=" ") }}
@@ -78,8 +78,8 @@ hatch -v run test:sync {{ usage.config }} {{ usage.args | join(sep=" ") }}
 [tasks."dev:dump"]
 description = "Dump dev records"
 usage = '''
-arg <config> default="sync.yml"
-arg "[args]" var=#true"
+arg "<config>" default="sync.yml"
+arg "[args]" var=#true
 '''
 run = '''
 hatch -v run test:dump {{ usage.config }} {{ usage.args | join(sep=" ") }}
@@ -88,8 +88,8 @@ hatch -v run test:dump {{ usage.config }} {{ usage.args | join(sep=" ") }}
 [tasks."dev:validate"]
 description = "Validate dev config"
 usage = '''
-arg <config> default="sync.yml"
-arg "[args]" var=#true"
+arg "<config>" default="sync.yml"
+arg "[args]" var=#true
 '''
 run = '''
 hatch -v run test:validate {{ usage.config }} {{ usage.args | join(sep=" ") }}
