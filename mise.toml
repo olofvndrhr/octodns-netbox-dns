@@ -1,0 +1,96 @@
+[env]
+_.file = ".env"
+
+[tools]
+python = "3.11.16"
+shellcheck = "0.11.0"
+shfmt = "3.13.1"
+
+[tasks.pipinstall]
+description = "Install pip packages"
+run = "pip install -r requirements.txt"
+
+[tasks.lint]
+description = "Lint code"
+run = [
+  "shfmt -d -i 4 -bn -ci -sr .",
+  "hatch run lint:all",
+]
+
+[tasks.format]
+description = "Format code"
+run = [
+  "shfmt -w -i 4 -bn -ci -sr .",
+  "hatch run lint:fmt",
+]
+
+[tasks.check]
+description = "Run code checks"
+run = [{ task = "format" }, { task = "lint" }]
+
+[tasks.test]
+description = "Run tests"
+usage = '''
+arg "[args]" var=#true"
+'''
+run = '''
+hatch run test:test {{ usage.args | join(sep=" ") }}
+'''
+
+[tasks.build]
+description = "Build project"
+usage = '''
+arg "[args]" var=#true"
+'''
+run = '''
+hatch build --clean {{ usage.args | join(sep=" ") }}
+'''
+
+[tasks."dev:cleanup"]
+description = "Clean-up dev env"
+run = [
+  "rm -rf dev/db-data/*",
+  "rm -rf dev/redis-data/*",
+  "rm -rf dev/netbox-data/*",
+]
+
+[tasks."dev:up"]
+description = "Start dev containers"
+run = [
+  "docker compose -f dev/compose.yml build",
+  "docker compose -f dev/compose.yml up",
+]
+
+[tasks."dev:down"]
+description = "Start dev containers"
+run = "docker compose -f dev/compose.yml down"
+
+[tasks."dev:sync"]
+description = "Sync dev records"
+usage = '''
+arg <config> default="sync.yml"
+arg "[args]" var=#true"
+'''
+run = '''
+hatch -v run test:sync {{ usage.config }} {{ usage.args | join(sep=" ") }}
+'''
+
+[tasks."dev:dump"]
+description = "Dump dev records"
+usage = '''
+arg <config> default="sync.yml"
+arg "[args]" var=#true"
+'''
+run = '''
+hatch -v run test:dump {{ usage.config }} {{ usage.args | join(sep=" ") }}
+'''
+
+[tasks."dev:validate"]
+description = "Validate dev config"
+usage = '''
+arg <config> default="sync.yml"
+arg "[args]" var=#true"
+'''
+run = '''
+hatch -v run test:validate {{ usage.config }} {{ usage.args | join(sep=" ") }}
+'''
