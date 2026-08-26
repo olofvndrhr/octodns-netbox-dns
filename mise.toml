@@ -1,3 +1,6 @@
+[settings]
+task.run_auto_install = false
+
 [env]
 _.file = ".env"
 
