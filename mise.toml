@@ -9,10 +9,6 @@ python = "3.11.16"
 shellcheck = "0.11.0"
 shfmt = "3.13.1"
 
-[tasks.pipinstall]
-description = "Install pip packages"
-run = "pip install -r requirements.txt"
-
 [tasks.lint]
 description = "Lint code"
 run = [

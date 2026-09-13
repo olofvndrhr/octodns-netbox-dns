@@ -80,8 +80,8 @@ validate = [
 [tool.hatch.envs.lint]
 python = "3.11"
 dependencies = [
-  "ruff==0.15.20",
-  "basedpyright==1.39.9",
+  "ruff==0.16.7",
+  "basedpyright==1.40.1",
   "octodns~=1.21.0",
 ]
 
