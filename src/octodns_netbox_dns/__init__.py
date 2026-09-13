@@ -46,7 +46,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
 
     def __init__(
         self,
-        id: int,  # noqa: A002
+        id: int,
         url: str,
         token: str,
         view: str | None | Literal[False] = None,
@@ -56,10 +56,10 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         ns_ttl_value: int = 14400,
         disable_ptr: bool = True,
         insecure_request: bool = False,
-        zone_status_filter: str = "active",
-        record_status_filter: str = "active",
         max_page_size: int = 0,
         enable_threading: bool = False,
+        zone_filter: dict[str, Any] | None = None,
+        record_filter: dict[str, Any] | None = None,
         *args,
         **kwargs,
     ) -> None:
@@ -69,8 +69,9 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         super().__init__(id, *args, **kwargs)
 
         self.api = Api(url, token, threading=enable_threading)
+
         if insecure_request:
-            import urllib3  # noqa: PLC0415
+            import urllib3
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             self.api.http_session.verify = False
@@ -81,14 +82,20 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         self.ns_ttl_mode = ns_ttl_mode
         self.ns_ttl_value = ns_ttl_value
         self.disable_ptr = disable_ptr
-        self.zone_status_filter = {"status": zone_status_filter} if zone_status_filter else {}
-        self.record_status_filter = {"status": record_status_filter} if record_status_filter else {}
         self.max_page_size = max_page_size
+
+        self.zone_filter = self._set_filter(zone_filter)
+        self.record_filter = self._set_filter(record_filter)
 
         _provider_infos = {
             k: v for k, v in locals().items() if k not in ["self", "__class__", "token"]
         }
         self.log.info(f"provider config: {_provider_infos}")
+
+    def _set_filter(self, input_filter: dict[str, Any] | None) -> dict[str, Any]:
+        if isinstance(input_filter, dict):
+            return input_filter
+        return {"active": True}
 
     def _make_absolute(self, value: str, force: bool = False) -> str:
         """Return dns name with trailing dot to make it absolute.
@@ -176,7 +183,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         @return: the netbox dns zone object
         """
         nb_zone: Record | None = self.api.plugins.netbox_dns.zones.get(
-            name=zone_name[:-1], **self.nb_view
+            name=zone_name[:-1], **self.nb_view, **self.zone_filter
         )
 
         if nb_zone is None:
@@ -334,7 +341,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         nb_records: RecordSet = self.api.plugins.netbox_dns.records.filter(
             limit=self.max_page_size,
             zone_id=nb_zone.id,
-            **self.record_status_filter,
+            **self.record_filter,
         )
         for nb_record in nb_records:
             rcd_name: str = "" if nb_record.name == "@" else nb_record.name
@@ -470,6 +477,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                         zone_id=nb_zone.id,
                         name=change.existing.name,
                         type=change.existing._type,
+                        **self.record_filter,
                     )
 
                     existing_changeset = self._format_changeset(change.existing)
@@ -490,6 +498,7 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                         zone_id=nb_zone.id,
                         name=rcd_name,
                         type=change.existing._type,
+                        **self.record_filter,
                     )
 
                     existing_changeset = self._format_changeset(change.existing)
@@ -526,10 +535,10 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
     def list_zones(self) -> list[str]:
         """Get all zones from netbox.
 
-        @return: a list with all active zones
+        @return: a list with all zones
         """
         zones = self.api.plugins.netbox_dns.zones.filter(
-            limit=self.max_page_size, **self.nb_view, **self.zone_status_filter
+            limit=self.max_page_size, **self.nb_view, **self.zone_filter
         )
         absolute_zones = [self._make_absolute(z.name, True) for z in zones]
 
