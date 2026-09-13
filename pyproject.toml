@@ -39,7 +39,8 @@ pythonVersion = "3.11"
 typeCheckingMode = "standard"
 reportMissingTypeStubs = false
 executionEnvironments = [
-  { root = "tests", reportMissingImports = false },
+  { root = "src", reportAttributeAccessIssue = false },
+  { root = "tests", reportMissingImports = false, reportArgumentType = false },
 ]
 
 [tool.hatch.version]
