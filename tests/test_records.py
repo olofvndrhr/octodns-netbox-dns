@@ -198,13 +198,14 @@ def test_https() -> None:
 
 def test_tlsa() -> None:
     rcd_type = "TLSA"
-    rcd_value = "1 1 2 abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+    rcd_value = "3 1 1 0D6FCE13243AA7"
     value = nbdns._format_rdata(rcd_type, rcd_value)
+
     assert value == {
-        "certificate_usage": 1,
+        "certificate_usage": 3,
         "selector": 1,
-        "matching_type": 2,
-        "certificate_association_data": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+        "matching_type": 1,
+        "certificate_association_data": "0d6fce13243aa7",
     }
 
 
