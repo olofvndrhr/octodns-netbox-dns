@@ -1,4 +1,4 @@
-name: build and release pypackage
+name: Build and release package to pypi
 
 on:
   push:
@@ -16,20 +16,20 @@ jobs:
       HATCH_INDEX_USER: __token__
       HATCH_INDEX_AUTH: ${{ secrets.PACKAGE_TOKEN }}
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: setup python
+      - name: Setup python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
-      - name: install hatch
+      - name: Install hatch
         run: pip install -U hatch hatchling
 
-      - name: build package
+      - name: Build package
         run: hatch build --clean
 
-      - name: publish package
+      - name: Publish package
         if: github.event_name != 'pull_request'
         run: hatch publish --yes --no-prompt

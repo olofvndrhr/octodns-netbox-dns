@@ -1,4 +1,4 @@
-name: build and create release
+name: Build package and create GitHub release
 
 on:
   push:
@@ -12,36 +12,36 @@ jobs:
   release-github:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: setup python
+      - name: Setup python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
-      - name: install hatch
+      - name: Install hatch
         run: pip install -U hatch hatchling
 
-      - name: build package
+      - name: Build package
         run: hatch build --clean
 
-      - name: install auto-changelog
+      - name: Install auto-changelog
         run: npm install auto-changelog
 
-      - name: generate changelog
+      - name: Generate changelog
         run: >-
           npx auto-changelog -t keepachangelog
           --commit-limit 50 --backfill-limit 50
           --ignore-commit-pattern '[Bb]ump version|[Uu]pdate changelog|[Mm]erge pull request'
 
-      - name: get release notes
+      - name: Get release notes
         id: release-notes
         uses: olofvndrhr/releasenote-gen@v1
 
-      - name: create github release
+      - name: Create GitHub release
         uses: ncipollo/release-action@v1
         if: github.event_name != 'pull_request'
         with:

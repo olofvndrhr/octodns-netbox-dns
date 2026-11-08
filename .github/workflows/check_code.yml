@@ -1,4 +1,4 @@
-name: check code
+name: Check code
 
 on:
   push:
@@ -11,21 +11,18 @@ jobs:
   check-code:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
-      - name: install hatch
+      - name: Install hatch
         run: pip install -U hatch
 
-      - name: test codestyle
-        run: hatch run lint:style
+      - name: Run linter
+        run: hatch run lint:all
 
-      - name: test typing
-        run: hatch run lint:typing
-
-      - name: run tests
+      - name: Run tests
         run: hatch run test:test

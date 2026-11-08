@@ -1,10 +1,3 @@
-[build-system]
-requires = [
-  "hatch-regex-commit==0.0.3",
-  "hatchling==1.27.0",
-]
-build-backend = "hatchling.build"
-
 [project]
 name = "octodns-netbox-dns"
 description = "octodns netbox-dns provider"
@@ -18,6 +11,9 @@ authors = [
 keywords = []
 classifiers = [
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
   "dnspython>=2.7.0",
@@ -31,6 +27,22 @@ Homepage = "https://github.com/olofvndrhr/octodns-netbox-dns"
 Source = "https://github.com/olofvndrhr/octodns-netbox-dns"
 Tracker = "https://github.com/olofvndrhr/octodns-netbox-dns/issues"
 
+[build-system]
+requires = [
+  "hatch-regex-commit==0.0.3",
+  "hatchling==1.27.0",
+]
+build-backend = "hatchling.build"
+
+[tool.basedpyright]
+pythonVersion = "3.11"
+typeCheckingMode = "standard"
+reportMissingTypeStubs = false
+executionEnvironments = [
+  { root = "src", reportAttributeAccessIssue = false },
+  { root = "tests", reportMissingImports = false, reportArgumentType = false },
+]
+
 [tool.hatch.version]
 source = "regex_commit"
 path = "src/octodns_netbox_dns/__about__.py"
@@ -42,69 +54,44 @@ packages = ["src/octodns_netbox_dns"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/octodns_netbox_dns"]
 
-##
-## envs
-##
-
 [tool.hatch.envs.test]
 dependencies = [
   "pytest==9.0.2",
   "coverage==7.13.2",
-  "octodns~=1.21.0",
+  "octodns~=1.22.0",
   "octodns-spf==1.0.0",
 ]
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.11"]
+# python = ["3.11", "3.12", "3.13", "3.14"]
 
 [tool.hatch.envs.test.scripts]
 test = "pytest {args:tests}"
-test-cov = [
-  "coverage erase",
-  "coverage run -m pytest {args:tests}",
-]
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-  "coverage xml",
-]
-cov = ["test-cov", "cov-report"]
-
 sync = [
-  "cd dev && octodns-sync --debug --config-file sync.yml --force {args}",
-]
-sync2 = [
-  "cd dev && octodns-sync --debug --config-file sync2.yml --force {args}",
+  "cd dev && octodns-sync --debug --force --config-file {args}",
 ]
 dump = [
-  "cd dev && octodns-dump --debug --config-file sync.yml --output-dir output {args} '*' netbox",
-]
-dump2 = [
-  "cd dev && octodns-dump --debug --config-file sync2.yml --output-dir output {args} '*' netbox",
+  "cd dev && octodns-dump --debug --config-file {args} --output-dir output '*' netbox",
 ]
 validate = [
-  "cd dev && octodns-validate --debug --config-file sync.yml {args}",
-]
-validate2 = [
-  "cd dev && octodns-validate --debug --config-file sync2.yml {args}",
+  "cd dev && octodns-validate --debug --config-file {args}",
 ]
 
 [tool.hatch.envs.lint]
 python = "3.11"
 dependencies = [
-  "ruff==0.15.20",
-  "basedpyright==1.39.9",
+  "ruff==0.16.7",
+  "basedpyright==1.40.1",
   "octodns~=1.21.0",
 ]
 
 [tool.hatch.envs.lint.scripts]
-# typing = "mypy --non-interactive --install-types {args:src}"
 typing = "basedpyright {args:src tests}"
 style = [
   "ruff check --no-fix {args:src tests}",
   "ruff format --diff {args:src tests}",
 ]
-unused = ["dead"]
 all = ["style", "typing"]
 fmt = [
   "ruff check --fix {args:src tests}",
@@ -112,178 +99,39 @@ fmt = [
   "style",
 ]
 
-##
-## ruff
-##
+[tool.pytest.ini_options]
+addopts = "--color=yes --exitfirst --verbose --strict-config --strict-markers"
+pythonpath = ["src"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-indent-width = 4
-fix = true
 show-fixes = true
-respect-gitignore = true
-src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["ALL"]
 ignore = [
-  "ANN002",
-  "ANN003",
-  "ANN401",
-  "BLE001",
-  "COM812",
-  "D100",
-  "D102",
-  "D103",
-  "EM101",
-  "ERA001",
-  "FBT",
-  "G004",
-  "SLF001",
-  "TRY003",
-  "TRY301",
+  "BLE001",  # blind-except
 ]
-fixable = ["ALL"]
-unfixable = []
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "lf"
-docstring-code-format = true
+unfixable = ["F401"]  # unused-import
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["D104"]
-"__about__.py" = ["D104", "F841"]
-"tests/*" = [
-  "E501",
-  "PLR2004",
-  "S101",
-  "TID252",
-  "PGH003",
+"__init__.py" = ["D104"]  # undocumented-public-package
+"__about__.py" = [
+  "D104",  # undocumented-public-package
+  "F841"  # unused-variable
 ]
-
-[tool.ruff.lint.pyupgrade]
-keep-runtime-typing = true
-
-[tool.ruff.lint.isort]
-lines-after-imports = 2
-known-first-party = [
-  "octodns_netbox_dns",
+"tests/**/*" = [
+  "PLR2004",  # magic-value-comparison
+  "S101",  # assert
 ]
-
-[tool.ruff.lint.flake8-tidy-imports]
-ban-relative-imports = "all"
-
-[tool.ruff.lint.pylint]
-max-branches = 24
-max-returns = 12
-max-statements = 100
-max-args = 15
-allow-magic-value-types = [
-  "bytes",
-  "complex",
-  "float",
-  "int",
-  "str",
-]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 15
+"**.ipynb" = ["T201", "T203"]  # print/pprint
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.lint.pycodestyle]
-max-doc-length = 100
+[tool.ruff.lint.isort]
+lines-after-imports = 2
 
-##
-## basedpyright
-##
-[tool.basedpyright]
-pythonVersion = "3.11"
-include = ["src", "tests"]
-typeCheckingMode = "standard"
-reportMissingTypeStubs = false
-reportAttributeAccessIssue = false
-executionEnvironments = [
-  { root = "tests", reportMissingImports = false, reportArgumentType = false },
-]
-
-##
-## mypy
-##
-
-[tool.mypy]
-# plugins = ["pydantic.mypy"]
-follow_imports = "silent"
-warn_redundant_casts = true
-warn_unused_ignores = true
-disallow_any_generics = true
-check_untyped_defs = true
-no_implicit_reexport = true
-ignore_missing_imports = true
-warn_return_any = true
-pretty = true
-show_column_numbers = true
-show_error_codes = true
-show_error_context = true
-
-# [tool.pydantic-mypy]
-# init_forbid_extra = true
-# init_typed = true
-# warn_required_dynamic_aliases = true
-
-##
-## pytest
-##
-
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-addopts = "--color=yes --exitfirst --verbose -ra"
-filterwarnings = [
-  "ignore:Jupyter is migrating its paths to use standard platformdirs:DeprecationWarning",
-]
-
-##
-## coverage
-##
-
-[tool.coverage.run]
-source_pkgs = ["octodns_netbox_dns", "tests"]
-branch = true
-parallel = true
-omit = ["src/octodns_netbox_dns/__about__.py"]
-
-[tool.coverage.paths]
-octodns_netbox_dns = [
-  "src/octodns_netbox_dns",
-  "*/octodns-netbox-dns/src/octodns_netbox_dns",
-]
-tests = [
-  "tests",
-  "*/octodns-netbox-dns/tests",
-]
-
-[tool.coverage.report]
-# Regexes for lines to exclude from consideration
-exclude_lines = [
-  # Have to re-enable the standard pragma
-  "pragma: no cover",
-  # Don't complain about missing debug-only code:
-  "def __repr__",
-  "if self.debug",
-  # Don't complain if tests don't hit defensive assertion code:
-  "raise AssertionError",
-  "raise NotImplementedError",
-  # Don't complain if non-runnable code isn't run:
-  "if 0:",
-  "if __name__ == .__main__.:",
-  # Don't complain about abstract methods, they aren't run:
-  "@(abc.)?abstractmethod",
-  "no cov",
-  "if TYPE_CHECKING:",
-]
-# ignore_errors = true
+[tool.ruff.format]
+line-ending = "lf"
+docstring-code-format = true
