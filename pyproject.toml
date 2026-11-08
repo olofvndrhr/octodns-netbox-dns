@@ -29,8 +29,8 @@ Tracker = "https://github.com/olofvndrhr/octodns-netbox-dns/issues"
 
 [build-system]
 requires = [
-  "hatch-regex-commit==0.0.3",
-  "hatchling==1.27.0",
+  "hatch-regex-commit==0.0.4",
+  "hatchling==1.33.0",
 ]
 build-backend = "hatchling.build"
 
