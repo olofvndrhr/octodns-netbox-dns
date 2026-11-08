@@ -5,7 +5,7 @@ task.run_auto_install = false
 _.file = ".env"
 
 [tools]
-python = "3.11.16"
+# python = "3.11.16"
 shellcheck = "0.11.0"
 shfmt = "3.13.1"
 
