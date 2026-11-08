@@ -162,7 +162,7 @@ def test_svcb_service_mode() -> None:
     rcd_type = "SVCB"
     rcd_value = (
         "1 svc.example.com. mandatory=alpn,port alpn=h2,h3 port=8443 "
-        "ipv4hint=192.0.2.1,192.0.2.2 ipv6hint=2001:db8::1 no-default-alpn ech=AED+CAAA"
+        "ipv4hint=192.0.2.1,192.0.2.2 ipv6hint=2001:db8::1 no-default-alpn ech=AAT+DQAA"
     )
     value = nbdns._format_rdata(rcd_type, rcd_value)
 
@@ -176,7 +176,7 @@ def test_svcb_service_mode() -> None:
             "ipv4hint": ["192.0.2.1", "192.0.2.2"],
             "ipv6hint": ["2001:db8::1"],
             "no-default-alpn": None,
-            "ech": "AED+CAAA",
+            "ech": "AAT+DQAA",
         },
     }
 

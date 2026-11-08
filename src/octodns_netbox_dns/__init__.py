@@ -465,10 +465,12 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
                         )
 
                 case octodns.record.Delete():
+                    rcd_name = "@" if change.existing.name == "" else change.existing.name
+
                     nb_records: RecordSet = self.api.plugins.netbox_dns.records.filter(
                         limit=self.max_page_size,
                         zone_id=nb_zone.id,
-                        name=change.existing.name,
+                        name=rcd_name,
                         type=change.existing._type,
                     )
 
