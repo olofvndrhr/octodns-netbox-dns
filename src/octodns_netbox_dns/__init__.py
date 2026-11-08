@@ -131,7 +131,8 @@ class NetBoxDNSProvider(octodns.provider.base.BaseProvider):
         nb_zone: Record,
         nb_record: Record,
     ) -> int:
-        ttl: int = nb_record.ttl or nb_zone.default_ttl  # pyright: ignore[reportAssignmentType]
+        ttl: int = nb_record.ttl if nb_record.ttl is not None else nb_zone.default_ttl  # pyright: ignore[reportAssignmentType]
+
         if nb_record.type != "NS":
             return ttl
 
