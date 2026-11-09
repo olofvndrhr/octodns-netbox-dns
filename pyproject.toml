@@ -16,7 +16,7 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "dnspython>=2.7.0",
+  "dnspython>=2.9.2",
   "pynetbox>=7.5.0",
 ]
 dynamic = ["version"]
